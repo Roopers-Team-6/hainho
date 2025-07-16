@@ -27,12 +27,12 @@ public class User extends BaseEntity {
         this.birthDate = birthDate;
     }
 
-    public static User register(UserCommand.UserRegisterCommand command) {
+    public static User register(String userId, String gender, String email, String birthDate) {
         return new User(
-                new UserId(command.userId()),
-                Gender.from(command.gender()),
-                new Email(command.email()),
-                new BirthDate(command.birthDate())
+                new UserId(userId),
+                Gender.from(gender),
+                new Email(email),
+                new BirthDate(birthDate)
         );
     }
 }

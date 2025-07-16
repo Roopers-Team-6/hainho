@@ -1,7 +1,6 @@
 package com.loopers.application.user;
 
 import com.loopers.domain.user.User;
-import com.loopers.domain.user.UserCommand;
 import com.loopers.domain.user.UserId;
 import com.loopers.domain.user.UserRepository;
 import com.loopers.support.error.CoreException;
@@ -17,9 +16,9 @@ public class UserFacade {
     private final UserRepository userRepository;
 
     @Transactional
-    public UserInfo registerUser(UserCommand.UserRegisterCommand command) {
-        checkDuplicateUserId(command.userId());
-        User user = User.register(command);
+    public UserInfo registerUser(String userId, String gender, String email, String birthDate) {
+        checkDuplicateUserId(userId);
+        User user = User.register(userId, gender, email, birthDate);
         return UserInfo.of(userRepository.save(user));
     }
 
