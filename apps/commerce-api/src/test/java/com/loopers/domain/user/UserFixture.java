@@ -6,6 +6,10 @@ public class UserFixture {
     public static final String VALID_EMAIL = "email@gmail.com";
     public static final String VALID_BIRTH_DATE = "1990-01-01";
 
+    public static User createUser() {
+        return User.register(VALID_USER_ID, VALID_GENDER, VALID_EMAIL, VALID_BIRTH_DATE);
+    }
+
     public static User createUser(String userId, String gender, String email, String birthDate) {
         return User.register(userId, gender, email, birthDate);
     }
