@@ -5,10 +5,6 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 
 public class UserV1Dto {
-    public enum UserV1DtoGender {
-        M, F
-    }
-
     public record UserRegisterRequest(
             @NotNull
             String userId,
@@ -24,7 +20,7 @@ public class UserV1Dto {
     public record UserRegisterResponse(
             Long id,
             String userId,
-            UserV1DtoGender gender,
+            String gender,
             String email,
             String birthDate
     ) {
@@ -32,7 +28,7 @@ public class UserV1Dto {
             return new UserRegisterResponse(
                     userInfo.id(),
                     userInfo.userId(),
-                    UserV1DtoGender.valueOf(userInfo.gender().toString()),
+                    userInfo.gender(),
                     userInfo.email(),
                     userInfo.birthDate()
             );

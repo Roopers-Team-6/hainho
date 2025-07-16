@@ -5,7 +5,7 @@ import com.loopers.domain.user.User;
 public record UserInfo(
         Long id,
         String userId,
-        UserInfoGender gender,
+        String gender,
         String email,
         String birthDate
 ) {
@@ -13,13 +13,9 @@ public record UserInfo(
         return new UserInfo(
                 user.getId(),
                 user.getUserId().userId(),
-                UserInfoGender.valueOf(user.getGender().toString()),
+                user.getGender().toString(),
                 user.getEmail().address(),
                 user.getBirthDate().birthDate().toString()
         );
-    }
-
-    public enum UserInfoGender {
-        M, F
     }
 }
