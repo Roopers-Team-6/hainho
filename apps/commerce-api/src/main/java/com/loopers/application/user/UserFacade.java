@@ -27,4 +27,10 @@ public class UserFacade {
             throw new CoreException(ErrorType.BAD_REQUEST, "UserId가 이미 존재합니다.");
         }
     }
+
+    public UserInfo getUser(String userId) {
+        User user = userReader.find(new UserId(userId))
+                .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "UserId에 해당하는 User를 찾을 수 없습니다."));
+        return UserInfo.of(user);
+    }
 }
