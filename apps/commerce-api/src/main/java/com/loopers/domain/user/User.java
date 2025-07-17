@@ -19,12 +19,15 @@ public class User extends BaseEntity {
     private Email email;
     @Embedded
     private BirthDate birthDate;
+    @Embedded
+    private Point point;
 
-    private User(UserId userId, Gender gender, Email email, BirthDate birthDate) {
+    private User(UserId userId, Gender gender, Email email, BirthDate birthDate, Point point) {
         this.userId = userId;
         this.gender = gender;
         this.email = email;
         this.birthDate = birthDate;
+        this.point = point;
     }
 
     public static User register(String userId, String gender, String email, String birthDate) {
@@ -32,7 +35,8 @@ public class User extends BaseEntity {
                 new UserId(userId),
                 Gender.from(gender),
                 new Email(email),
-                new BirthDate(birthDate)
+                new BirthDate(birthDate),
+                Point.ZERO
         );
     }
 }

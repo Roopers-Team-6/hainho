@@ -23,4 +23,11 @@ public class UserService implements UserReader {
     public Optional<User> find(UserId userId) {
         return userRepository.find(userId);
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<Point> findPoint(UserId userId) {
+        Optional<User> optionalUser = userRepository.find(userId);
+        return optionalUser.map(User::getPoint);
+    }
 }

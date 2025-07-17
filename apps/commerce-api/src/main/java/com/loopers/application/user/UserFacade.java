@@ -1,5 +1,6 @@
 package com.loopers.application.user;
 
+import com.loopers.domain.user.Point;
 import com.loopers.domain.user.User;
 import com.loopers.domain.user.UserId;
 import com.loopers.domain.user.UserRepository;
@@ -32,5 +33,11 @@ public class UserFacade {
         User user = userReader.find(new UserId(userId))
                 .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "UserId에 해당하는 User를 찾을 수 없습니다."));
         return UserInfo.of(user);
+    }
+
+    public Long getPoint(String userId) {
+        Point point = userReader.findPoint(new UserId(userId))
+                .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "UserId에 해당하는 User를 찾을 수 없습니다."));
+        return point.balance();
     }
 }

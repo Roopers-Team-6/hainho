@@ -53,4 +53,8 @@ public class UserV1Dto {
         }
     }
 
+    public record PointResponse(
+            Long point
+    ) {
+    }
 }

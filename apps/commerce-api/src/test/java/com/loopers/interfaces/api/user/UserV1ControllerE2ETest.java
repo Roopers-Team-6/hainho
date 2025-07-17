@@ -158,5 +158,61 @@ class UserV1ControllerE2ETest {
                     () -> assertThat(response.getBody()).isNotNull()
             );
         }
+
+    }
+
+    @Nested
+    @DisplayName("GET /api/v1/points")
+    class GetUserPoint {
+        private static final String GET_USER_POINT_ENDPOINT = "/api/v1/points";
+
+        @Test
+        @DisplayName("포인트 조회가 성공할 경우, 사용자의 포인트 정보를 반환한다.")
+        void getUserPointSuccess() {
+            // arrange
+            UserV1Dto.UserRegisterRequest registerRequest = new UserV1Dto.UserRegisterRequest(
+                    "qwer1234",
+                    "M",
+                    "email@gmail.com",
+                    "2000-01-01"
+            );
+
+            ParameterizedTypeReference<ApiResponse<UserV1Dto.UserRegisterResponse>> responseType = new ParameterizedTypeReference<>() {
+            };
+            testRestTemplate.exchange(REGISTER_USER_ENDPOINT, HttpMethod.POST, new HttpEntity<>(registerRequest), responseType);
+
+            String userId = registerRequest.userId();
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("X-USER-ID", userId);
+
+            // act
+            ResponseEntity<ApiResponse<UserV1Dto.PointResponse>> response =
+                    testRestTemplate.exchange(GET_USER_POINT_ENDPOINT, HttpMethod.GET, new HttpEntity<>(headers),
+                            new ParameterizedTypeReference<ApiResponse<UserV1Dto.PointResponse>>() {
+                            });
+            // assert
+            assertAll(
+                    () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK),
+                    () -> assertThat(response.getBody()).isNotNull(),
+                    () -> assertThat(response.getBody().data()).isNotNull(),
+                    () -> assertThat(response.getBody().data().point()).isZero()
+            );
+        }
+
+        @Test
+        @DisplayName("X-USER-ID 헤더가 없을 경우, 400 Bad Request 응답을 반환한다.")
+        void getUserPointWithoutHeader() {
+            // act
+            ResponseEntity<ApiResponse<UserV1Dto.PointResponse>> response =
+                    testRestTemplate.exchange(GET_USER_POINT_ENDPOINT, HttpMethod.GET, null,
+                            new ParameterizedTypeReference<ApiResponse<UserV1Dto.PointResponse>>() {
+                            });
+
+            // assert
+            assertAll(
+                    () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST),
+                    () -> assertThat(response.getBody()).isNotNull()
+            );
+        }
     }
 }
