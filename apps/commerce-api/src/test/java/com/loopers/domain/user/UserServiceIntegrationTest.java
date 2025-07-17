@@ -64,4 +64,38 @@ class UserServiceIntegrationTest {
             assertThat(result).isEmpty();
         }
     }
+
+    @Nested
+    @DisplayName("포인트를 조회할 때")
+    class FindPoint {
+
+        @Test
+        @DisplayName("존재하는 유저 ID로 조회하면, Optional<Point>를 반환한다.")
+        void findExistingUserPoint() {
+            // Given
+            User existingUser = userRepository.save(UserFixture.createUser());
+            UserId userId = existingUser.getUserId();
+
+            // When
+            Optional<Point> foundPoint = userService.findPoint(userId);
+
+            // Then
+            assertAll(
+                    () -> assertThat(foundPoint).hasValue(existingUser.getPoint())
+            );
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 유저 ID로 조회하면, 빈 Optional을 반환한다.")
+        void findNonExistingUserPoint() {
+            // Given
+            UserId nonExistingUserId = new UserId(UserFixture.VALID_USER_ID);
+
+            // When
+            Optional<Point> result = userService.findPoint(nonExistingUserId);
+
+            // Then
+            assertThat(result).isEmpty();
+        }
+    }
 }
