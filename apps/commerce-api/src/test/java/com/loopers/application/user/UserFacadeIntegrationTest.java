@@ -92,10 +92,10 @@ class UserFacadeIntegrationTest {
     @DisplayName("포인트 충전 시,")
     class ChargePoint {
         @Test
-        @DisplayName("존재하지 않는 UserId로 충전 시, NotFound 예외가 발생한다.")
+        @DisplayName("존재하지 않는 user.id 충전 시, NotFound 예외가 발생한다.")
         void throwsNotFoundExceptionWhenUserNotFound() {
             // arrange
-            String nonExistingUserId = UserFixture.VALID_USER_ID;
+            long nonExistingUserId = 1L;
             long chargeAmount = 1000;
 
             // act
@@ -108,7 +108,7 @@ class UserFacadeIntegrationTest {
         }
 
         @Test
-        @DisplayName("존재하는 UserId로 포인트를 충전하면, 충전된 포인트를 반환한다.")
+        @DisplayName("존재하는 user.id로 포인트를 충전하면, 충전된 포인트를 반환한다.")
         void chargesPointSuccessfully() {
             // arrange
             String userId = UserFixture.VALID_USER_ID;
@@ -116,12 +116,12 @@ class UserFacadeIntegrationTest {
             String email = UserFixture.VALID_EMAIL;
             String birthDate = UserFixture.VALID_BIRTH_DATE;
 
-            userFacade.registerUser(userId, gender, email, birthDate);
-
+            UserInfo userInfo = userFacade.registerUser(userId, gender, email, birthDate);
+            long id = userInfo.id();
             long chargeAmount = 1000;
 
             // act
-            Long chargedPoint = userFacade.chargePoint(userId, chargeAmount);
+            Long chargedPoint = userFacade.chargePoint(id, chargeAmount);
 
             // assert
             assertAll(

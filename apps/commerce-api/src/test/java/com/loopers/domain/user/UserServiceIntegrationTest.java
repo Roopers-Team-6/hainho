@@ -39,7 +39,7 @@ class UserServiceIntegrationTest {
         void findExistingUser() {
             // Given
             User existingUser = userRepository.save(UserFixture.createUser());
-            UserId userId = existingUser.getUserId();
+            long userId = existingUser.getId();
 
             // When
             User foundUser = userService.find(userId).get();
@@ -55,7 +55,7 @@ class UserServiceIntegrationTest {
         @DisplayName("존재하지 않는 유저 ID로 조회하면, 빈 Optional을 반환한다.")
         void findNonExistingUser() {
             // Given
-            UserId nonExistingUserId = new UserId(UserFixture.VALID_USER_ID);
+            long nonExistingUserId = 1L;
 
             // When
             Optional<User> result = userService.find(nonExistingUserId);
@@ -74,7 +74,7 @@ class UserServiceIntegrationTest {
         void findExistingUserPoint() {
             // Given
             User existingUser = userRepository.save(UserFixture.createUser());
-            UserId userId = existingUser.getUserId();
+            long userId = existingUser.getId();
 
             // When
             Optional<Point> foundPoint = userService.findPoint(userId);
@@ -89,7 +89,7 @@ class UserServiceIntegrationTest {
         @DisplayName("존재하지 않는 유저 ID로 조회하면, 빈 Optional을 반환한다.")
         void findNonExistingUserPoint() {
             // Given
-            UserId nonExistingUserId = new UserId(UserFixture.VALID_USER_ID);
+            long nonExistingUserId = 1L;
 
             // When
             Optional<Point> result = userService.findPoint(nonExistingUserId);
