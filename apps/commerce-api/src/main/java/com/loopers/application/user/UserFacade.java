@@ -29,22 +29,22 @@ public class UserFacade {
         }
     }
 
-    public UserInfo getUser(String userId) {
-        User user = userReader.find(new UserId(userId))
-                .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "UserId에 해당하는 User를 찾을 수 없습니다."));
+    public UserInfo getUser(long userId) {
+        User user = userReader.find(userId)
+                .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "id에 해당하는 User를 찾을 수 없습니다."));
         return UserInfo.of(user);
     }
 
-    public Long getPoint(String userId) {
-        Point point = userReader.findPoint(new UserId(userId))
-                .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "UserId에 해당하는 User를 찾을 수 없습니다."));
+    public Long getPoint(long userId) {
+        Point point = userReader.findPoint(userId)
+                .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "id에 해당하는 User를 찾을 수 없습니다."));
         return point.balance();
     }
 
     @Transactional
-    public Long chargePoint(String userId, Long point) {
-        User user = userReader.find(new UserId(userId))
-                .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "UserId에 해당하는 User를 찾을 수 없습니다."));
+    public Long chargePoint(long userId, Long point) {
+        User user = userReader.find(userId)
+                .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "id에 해당하는 User를 찾을 수 없습니다."));
         user.chargePoint(point);
         return user.getPoint().balance();
     }

@@ -9,7 +9,7 @@ import java.util.Optional;
 public interface UserReader {
     boolean exists(UserId userId);
 
-    Optional<User> find(UserId userId);
+    Optional<User> find(long userId);
 
-    Optional<Point> findPoint(UserId userId);
+    Optional<Point> findPoint(long userId);
 }

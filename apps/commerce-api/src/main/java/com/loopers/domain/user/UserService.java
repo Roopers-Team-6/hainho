@@ -20,14 +20,14 @@ public class UserService implements UserReader {
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<User> find(UserId userId) {
-        return userRepository.find(userId);
+    public Optional<User> find(long id) {
+        return userRepository.find(id);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<Point> findPoint(UserId userId) {
-        Optional<User> optionalUser = userRepository.find(userId);
+    public Optional<Point> findPoint(long id) {
+        Optional<User> optionalUser = userRepository.find(id);
         return optionalUser.map(User::getPoint);
     }
 }
