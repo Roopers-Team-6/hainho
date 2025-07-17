@@ -19,7 +19,7 @@ public class UserV1Controller implements UserV1ApiSpec {
             @RequestBody @Valid UserV1Dto.UserRegisterRequest request
     ) {
         UserInfo userInfo = userFacade.registerUser(
-                request.userId(), request.gender(), request.email(), request.birthDate());
+                request.loginId(), request.gender(), request.email(), request.birthDate());
         UserV1Dto.UserRegisterResponse response = UserV1Dto.UserRegisterResponse.from(userInfo);
         return ApiResponse.success(response);
     }

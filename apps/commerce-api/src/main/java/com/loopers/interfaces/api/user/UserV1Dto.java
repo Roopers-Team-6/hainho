@@ -8,7 +8,7 @@ import jakarta.validation.constraints.NotNull;
 public class UserV1Dto {
     public record UserRegisterRequest(
             @NotNull
-            String userId,
+            String loginId,
             @NotNull
             String gender,
             @Email
@@ -26,7 +26,7 @@ public class UserV1Dto {
 
     public record UserRegisterResponse(
             Long id,
-            String userId,
+            String loginId,
             String gender,
             String email,
             String birthDate
@@ -34,7 +34,7 @@ public class UserV1Dto {
         public static UserRegisterResponse from(UserInfo userInfo) {
             return new UserRegisterResponse(
                     userInfo.id(),
-                    userInfo.userId(),
+                    userInfo.loginId(),
                     userInfo.gender(),
                     userInfo.email(),
                     userInfo.birthDate()
@@ -44,7 +44,7 @@ public class UserV1Dto {
 
     public record UserResponse(
             Long id,
-            String userId,
+            String loginId,
             String gender,
             String email,
             String birthDate
@@ -52,7 +52,7 @@ public class UserV1Dto {
         public static UserResponse from(UserInfo userInfo) {
             return new UserResponse(
                     userInfo.id(),
-                    userInfo.userId(),
+                    userInfo.loginId(),
                     userInfo.gender(),
                     userInfo.email(),
                     userInfo.birthDate()

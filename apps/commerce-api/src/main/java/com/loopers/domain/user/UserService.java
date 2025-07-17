@@ -14,8 +14,8 @@ public class UserService implements UserReader {
 
     @Override
     @Transactional(readOnly = true)
-    public boolean exists(UserId userId) {
-        return userRepository.existsByUserId(userId);
+    public boolean exists(LoginId loginId) {
+        return userRepository.existsByLoginId(loginId);
     }
 
     @Override

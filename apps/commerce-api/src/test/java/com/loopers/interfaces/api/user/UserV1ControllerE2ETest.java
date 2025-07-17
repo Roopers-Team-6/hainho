@@ -67,7 +67,7 @@ class UserV1ControllerE2ETest {
                     () -> assertThat(response.getBody()).isNotNull(),
                     () -> assertThat(response.getBody().data()).isNotNull(),
                     () -> assertThat(response.getBody().data().id()).isNotNull(),
-                    () -> assertThat(response.getBody().data().userId()).isEqualTo(request.userId()),
+                    () -> assertThat(response.getBody().data().loginId()).isEqualTo(request.loginId()),
                     () -> assertThat(response.getBody().data().gender()).hasToString(request.gender()),
                     () -> assertThat(response.getBody().data().email()).isEqualTo(request.email()),
                     () -> assertThat(response.getBody().data().birthDate()).isEqualTo(request.birthDate())
@@ -133,7 +133,7 @@ class UserV1ControllerE2ETest {
                     () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK),
                     () -> assertThat(response.getBody()).isNotNull(),
                     () -> assertThat(response.getBody().data()).isNotNull(),
-                    () -> assertThat(response.getBody().data().userId()).isEqualTo(registerRequest.userId()),
+                    () -> assertThat(response.getBody().data().loginId()).isEqualTo(registerRequest.loginId()),
                     () -> assertThat(response.getBody().data().gender()).isEqualTo(registerRequest.gender()),
                     () -> assertThat(response.getBody().data().email()).isEqualTo(registerRequest.email()),
                     () -> assertThat(response.getBody().data().birthDate()).isEqualTo(registerRequest.birthDate())
@@ -141,7 +141,7 @@ class UserV1ControllerE2ETest {
         }
 
         @Test
-        @DisplayName("유저 정보를 조회할 때, 해당 UserId의 유저가 없으면 404 Not Found 응답을 반환한다.")
+        @DisplayName("유저 정보를 조회할 때, 해당 user.id의 유저가 없으면 404 Not Found 응답을 반환한다.")
         void getUserNotFound() {
             // arrange
             Long userId = 1L;

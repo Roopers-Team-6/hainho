@@ -1,8 +1,8 @@
 package com.loopers.application.user;
 
+import com.loopers.domain.user.LoginId;
 import com.loopers.domain.user.Point;
 import com.loopers.domain.user.User;
-import com.loopers.domain.user.UserId;
 import com.loopers.domain.user.UserRepository;
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
@@ -17,15 +17,15 @@ public class UserFacade {
     private final UserRepository userRepository;
 
     @Transactional
-    public UserInfo registerUser(String userId, String gender, String email, String birthDate) {
-        checkDuplicateUserId(userId);
-        User user = User.register(userId, gender, email, birthDate);
+    public UserInfo registerUser(String loginId, String gender, String email, String birthDate) {
+        checkDuplicateLoginId(loginId);
+        User user = User.register(loginId, gender, email, birthDate);
         return UserInfo.of(userRepository.save(user));
     }
 
-    private void checkDuplicateUserId(String userId) {
-        if (userReader.exists(new UserId(userId))) {
-            throw new CoreException(ErrorType.BAD_REQUEST, "UserId가 이미 존재합니다.");
+    private void checkDuplicateLoginId(String loginId) {
+        if (userReader.exists(new LoginId(loginId))) {
+            throw new CoreException(ErrorType.BAD_REQUEST, "LoginId가 이미 존재합니다.");
         }
     }
 

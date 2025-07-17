@@ -35,7 +35,7 @@ class UserServiceIntegrationTest {
     class FindUser {
 
         @Test
-        @DisplayName("존재하는 유저 ID로 조회하면, Optional<User>를 반환한다.")
+        @DisplayName("존재하는 user.id로 조회하면, Optional<User>를 반환한다.")
         void findExistingUser() {
             // Given
             User existingUser = userRepository.save(UserFixture.createUser());
@@ -52,7 +52,7 @@ class UserServiceIntegrationTest {
         }
 
         @Test
-        @DisplayName("존재하지 않는 유저 ID로 조회하면, 빈 Optional을 반환한다.")
+        @DisplayName("존재하지 않는 user.id로 조회하면, 빈 Optional을 반환한다.")
         void findNonExistingUser() {
             // Given
             long nonExistingUserId = 1L;
@@ -70,7 +70,7 @@ class UserServiceIntegrationTest {
     class FindPoint {
 
         @Test
-        @DisplayName("존재하는 유저 ID로 조회하면, Optional<Point>를 반환한다.")
+        @DisplayName("존재하는 user.id로 조회하면, Optional<Point>를 반환한다.")
         void findExistingUserPoint() {
             // Given
             User existingUser = userRepository.save(UserFixture.createUser());
@@ -86,7 +86,7 @@ class UserServiceIntegrationTest {
         }
 
         @Test
-        @DisplayName("존재하지 않는 유저 ID로 조회하면, 빈 Optional을 반환한다.")
+        @DisplayName("존재하지 않는 user.id로 조회하면, 빈 Optional을 반환한다.")
         void findNonExistingUserPoint() {
             // Given
             long nonExistingUserId = 1L;
