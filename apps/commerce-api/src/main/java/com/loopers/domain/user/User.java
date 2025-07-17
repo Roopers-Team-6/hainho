@@ -39,4 +39,8 @@ public class User extends BaseEntity {
                 Point.ZERO
         );
     }
+
+    public void chargePoint(long point) {
+        this.point = this.point.charge(point);
+    }
 }
