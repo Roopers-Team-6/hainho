@@ -5,6 +5,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 @RequiredArgsConstructor
 @Component
 public class UserService implements UserReader {
@@ -14,5 +16,11 @@ public class UserService implements UserReader {
     @Transactional(readOnly = true)
     public boolean exists(UserId userId) {
         return userRepository.existsByUserId(userId);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<User> find(UserId userId) {
+        return userRepository.find(userId);
     }
 }

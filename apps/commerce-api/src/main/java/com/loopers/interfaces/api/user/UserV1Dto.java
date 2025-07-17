@@ -34,4 +34,23 @@ public class UserV1Dto {
             );
         }
     }
+
+    public record UserResponse(
+            Long id,
+            String userId,
+            String gender,
+            String email,
+            String birthDate
+    ) {
+        public static UserResponse from(UserInfo userInfo) {
+            return new UserResponse(
+                    userInfo.id(),
+                    userInfo.userId(),
+                    userInfo.gender(),
+                    userInfo.email(),
+                    userInfo.birthDate()
+            );
+        }
+    }
+
 }
