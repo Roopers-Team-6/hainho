@@ -9,12 +9,12 @@ import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/v1/users")
+@RequestMapping("/api/v1")
 public class UserV1Controller implements UserV1ApiSpec {
     private final UserFacade userFacade;
 
     @Override
-    @PostMapping
+    @PostMapping("/users")
     public ApiResponse<UserV1Dto.UserRegisterResponse> registerUser(
             @RequestBody @Valid UserV1Dto.UserRegisterRequest request
     ) {
@@ -25,12 +25,22 @@ public class UserV1Controller implements UserV1ApiSpec {
     }
 
     @Override
-    @GetMapping("/me")
+    @GetMapping("/users/me")
     public ApiResponse<UserV1Dto.UserResponse> getUser(
             @RequestHeader(value = "X-USER-ID") String userId
     ) {
         UserInfo userInfo = userFacade.getUser(userId);
         UserV1Dto.UserResponse response = UserV1Dto.UserResponse.from(userInfo);
+        return ApiResponse.success(response);
+    }
+
+    @Override
+    @GetMapping("/points")
+    public ApiResponse<UserV1Dto.PointResponse> getPoint(
+            @RequestHeader(value = "X-USER-ID") String userId
+    ) {
+        Long point = userFacade.getPoint(userId);
+        UserV1Dto.PointResponse response = new UserV1Dto.PointResponse(point);
         return ApiResponse.success(response);
     }
 }

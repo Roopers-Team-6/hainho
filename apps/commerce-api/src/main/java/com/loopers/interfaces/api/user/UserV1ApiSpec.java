@@ -31,4 +31,16 @@ public interface UserV1ApiSpec {
             )
             String userId
     );
+
+    @Operation(
+            summary = "포인트 조회",
+            description = "유저의 포인트 정보를 조회합니다."
+    )
+    ApiResponse<UserV1Dto.PointResponse> getPoint(
+            @Schema(
+                    name = "X-USER-ID",
+                    description = "조회할 사용자의 ID"
+            )
+            String userId
+    );
 }
