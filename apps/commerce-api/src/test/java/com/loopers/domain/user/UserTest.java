@@ -19,25 +19,41 @@ class UserTest {
     @Nested
     @DisplayName("User를 생성할 때,")
     class CreateUser {
-        @Test
-        @DisplayName("올바른 값으로 생성하면, 정상적으로 User 객체가 생성된다.")
-        void createsUserSuccessfully_withValidValues() {
+
+        @Nested
+        @DisplayName("올바른 값으로 생성하면,")
+        class ValidUserCreation {
+
             // arrange
-            String validUserId = VALID_USER_ID;
-            String validGender = VALID_GENDER;
-            String validEmail = VALID_EMAIL;
-            String validBirthDate = VALID_BIRTH_DATE;
+            private final String validUserId = VALID_USER_ID;
+            private final String validGender = VALID_GENDER;
+            private final String validEmail = VALID_EMAIL;
+            private final String validBirthDate = VALID_BIRTH_DATE;
 
-            // act
-            User user = createUser(validUserId, validGender, validEmail, validBirthDate);
+            @Test
+            @DisplayName("정상적으로 User 객체가 생성된다.")
+            void createsUserSuccessfully_withValidValues() {
+                // act
+                User user = createUser(validUserId, validGender, validEmail, validBirthDate);
 
-            // assert
-            assertAll(
-                    () -> assertThat(user.getUserId().userId()).isEqualTo(validUserId),
-                    () -> assertThat(user.getGender()).hasToString(validGender),
-                    () -> assertThat(user.getEmail().address()).isEqualTo(validEmail),
-                    () -> assertThat(user.getBirthDate().birthDate()).isEqualTo(LocalDate.parse(validBirthDate))
-            );
+                // assert
+                assertAll(
+                        () -> assertThat(user.getUserId().userId()).isEqualTo(validUserId),
+                        () -> assertThat(user.getGender()).hasToString(validGender),
+                        () -> assertThat(user.getEmail().address()).isEqualTo(validEmail),
+                        () -> assertThat(user.getBirthDate().birthDate()).isEqualTo(LocalDate.parse(validBirthDate))
+                );
+            }
+
+            @Test
+            @DisplayName("Point가 0으로 초기화된다.")
+            void pointIsInitializedToZero() {
+                // act
+                User user = createUser(validUserId, validGender, validEmail, validBirthDate);
+
+                // assert
+                assertThat(user.getPoint().balance()).isZero();
+            }
         }
 
         @Nested
