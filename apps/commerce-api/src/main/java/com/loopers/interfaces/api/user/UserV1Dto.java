@@ -2,6 +2,7 @@ package com.loopers.interfaces.api.user;
 
 import com.loopers.application.user.UserInfo;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 
 public class UserV1Dto {
@@ -14,6 +15,12 @@ public class UserV1Dto {
             String email,
             @NotNull
             String birthDate
+    ) {
+    }
+
+    public record PointChargeRequest(
+            @Min(value = 1, message = "충전할 포인트는 1 이상이어야 합니다.")
+            Long point
     ) {
     }
 
@@ -54,6 +61,11 @@ public class UserV1Dto {
     }
 
     public record PointResponse(
+            Long point
+    ) {
+    }
+
+    public record PointChargeResponse(
             Long point
     ) {
     }

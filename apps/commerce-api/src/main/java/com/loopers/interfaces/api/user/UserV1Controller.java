@@ -43,4 +43,15 @@ public class UserV1Controller implements UserV1ApiSpec {
         UserV1Dto.PointResponse response = new UserV1Dto.PointResponse(point);
         return ApiResponse.success(response);
     }
+
+    @Override
+    @PostMapping("/points/charge")
+    public ApiResponse<UserV1Dto.PointChargeResponse> chargePoint(
+            @RequestHeader(value = "X-USER-ID") String userId,
+            @RequestBody @Valid UserV1Dto.PointChargeRequest request
+    ) {
+        Long point = userFacade.chargePoint(userId, request.point());
+        UserV1Dto.PointChargeResponse response = new UserV1Dto.PointChargeResponse(point);
+        return ApiResponse.success(response);
+    }
 }

@@ -40,4 +40,12 @@ public class UserFacade {
                 .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "UserId에 해당하는 User를 찾을 수 없습니다."));
         return point.balance();
     }
+
+    @Transactional
+    public Long chargePoint(String userId, Long point) {
+        User user = userReader.find(new UserId(userId))
+                .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "UserId에 해당하는 User를 찾을 수 없습니다."));
+        user.chargePoint(point);
+        return user.getPoint().balance();
+    }
 }

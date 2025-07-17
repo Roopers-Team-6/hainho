@@ -87,4 +87,47 @@ class UserFacadeIntegrationTest {
             verify(userRepository, times(1)).save(any(User.class));
         }
     }
+
+    @Nested
+    @DisplayName("포인트 충전 시,")
+    class ChargePoint {
+        @Test
+        @DisplayName("존재하지 않는 UserId로 충전 시, NotFound 예외가 발생한다.")
+        void throwsNotFoundExceptionWhenUserNotFound() {
+            // arrange
+            String nonExistingUserId = UserFixture.VALID_USER_ID;
+            long chargeAmount = 1000;
+
+            // act
+            CoreException exception = assertThrows(CoreException.class, () -> {
+                userFacade.chargePoint(nonExistingUserId, chargeAmount);
+            });
+
+            // assert
+            assertThat(exception.getErrorType()).isEqualTo(ErrorType.NOT_FOUND);
+        }
+
+        @Test
+        @DisplayName("존재하는 UserId로 포인트를 충전하면, 충전된 포인트를 반환한다.")
+        void chargesPointSuccessfully() {
+            // arrange
+            String userId = UserFixture.VALID_USER_ID;
+            String gender = UserFixture.VALID_GENDER;
+            String email = UserFixture.VALID_EMAIL;
+            String birthDate = UserFixture.VALID_BIRTH_DATE;
+
+            userFacade.registerUser(userId, gender, email, birthDate);
+
+            long chargeAmount = 1000;
+
+            // act
+            Long chargedPoint = userFacade.chargePoint(userId, chargeAmount);
+
+            // assert
+            assertAll(
+                    () -> assertThat(chargedPoint).isNotNull(),
+                    () -> assertThat(chargedPoint).isEqualTo(chargeAmount)
+            );
+        }
+    }
 }

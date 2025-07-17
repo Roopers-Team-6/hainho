@@ -21,6 +21,8 @@ class UserV1ControllerE2ETest {
 
     private static final String REGISTER_USER_ENDPOINT = "/api/v1/users";
     private static final String GET_USER_ENDPOINT = "/api/v1/users/me";
+    private static final String GET_USER_POINT_ENDPOINT = "/api/v1/points";
+
     private final TestRestTemplate testRestTemplate;
     private final DatabaseCleanUp databaseCleanUp;
 
@@ -164,7 +166,6 @@ class UserV1ControllerE2ETest {
     @Nested
     @DisplayName("GET /api/v1/points")
     class GetUserPoint {
-        private static final String GET_USER_POINT_ENDPOINT = "/api/v1/points";
 
         @Test
         @DisplayName("포인트 조회가 성공할 경우, 사용자의 포인트 정보를 반환한다.")
@@ -211,6 +212,81 @@ class UserV1ControllerE2ETest {
             // assert
             assertAll(
                     () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST),
+                    () -> assertThat(response.getBody()).isNotNull()
+            );
+        }
+    }
+
+    @Nested
+    @DisplayName("POST /api/v1/points/charge")
+    class ChargeUserPoint {
+
+        private static final String CHARGE_USER_POINT_ENDPOINT = "/api/v1/points/charge";
+
+        @Test
+        @DisplayName("존재하는 유저가 1000원을 충전할 경우, 충전된 보유 총량을 응답으로 반환한다.")
+        void chargeUserPointSuccess() {
+            // arrange
+            UserV1Dto.UserRegisterRequest registerRequest = new UserV1Dto.UserRegisterRequest(
+                    "qwer1234",
+                    "M",
+                    "email@gmail.com",
+                    "2000-01-01"
+            );
+
+            ParameterizedTypeReference<ApiResponse<UserV1Dto.UserRegisterResponse>> responseType = new ParameterizedTypeReference<>() {
+            };
+            testRestTemplate.exchange(REGISTER_USER_ENDPOINT, HttpMethod.POST, new HttpEntity<>(registerRequest), responseType);
+
+            String userId = registerRequest.userId();
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("X-USER-ID", userId);
+
+            ResponseEntity<ApiResponse<UserV1Dto.PointResponse>> getPointResponse =
+                    testRestTemplate.exchange(GET_USER_POINT_ENDPOINT, HttpMethod.GET, new HttpEntity<>(headers),
+                            new ParameterizedTypeReference<ApiResponse<UserV1Dto.PointResponse>>() {
+                            });
+            Long initialPoint = getPointResponse.getBody().data().point();
+            Long chargingPoint = 1000L;
+
+            UserV1Dto.PointChargeRequest chargeRequest = new UserV1Dto.PointChargeRequest(chargingPoint);
+
+            // act
+            ResponseEntity<ApiResponse<UserV1Dto.PointChargeResponse>> response =
+                    testRestTemplate.exchange(CHARGE_USER_POINT_ENDPOINT, HttpMethod.POST,
+                            new HttpEntity<>(chargeRequest, headers),
+                            new ParameterizedTypeReference<ApiResponse<UserV1Dto.PointChargeResponse>>() {
+                            });
+
+            // assert
+            assertAll(
+                    () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK),
+                    () -> assertThat(response.getBody()).isNotNull(),
+                    () -> assertThat(response.getBody().data()).isNotNull(),
+                    () -> assertThat(response.getBody().data().point()).isEqualTo(initialPoint + chargingPoint)
+            );
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 UserId로 포인트 충전 시도 시, 404 Not Found 응답을 반환한다.")
+        void chargeUserPointNotFound() {
+            // arrange
+            String userId = "userId";
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("X-USER-ID", userId);
+
+            UserV1Dto.PointChargeRequest chargeRequest = new UserV1Dto.PointChargeRequest(100L);
+
+            // act
+            ResponseEntity<ApiResponse<UserV1Dto.PointChargeResponse>> response =
+                    testRestTemplate.exchange(CHARGE_USER_POINT_ENDPOINT, HttpMethod.POST,
+                            new HttpEntity<>(chargeRequest, headers),
+                            new ParameterizedTypeReference<ApiResponse<UserV1Dto.PointChargeResponse>>() {
+                            });
+
+            // assert
+            assertAll(
+                    () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND),
                     () -> assertThat(response.getBody()).isNotNull()
             );
         }
