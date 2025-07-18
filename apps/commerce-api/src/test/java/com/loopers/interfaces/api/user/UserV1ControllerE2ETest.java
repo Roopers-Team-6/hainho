@@ -67,7 +67,7 @@ class UserV1ControllerE2ETest {
                     () -> assertThat(response.getBody()).isNotNull(),
                     () -> assertThat(response.getBody().data()).isNotNull(),
                     () -> assertThat(response.getBody().data().id()).isNotNull(),
-                    () -> assertThat(response.getBody().data().userId()).isEqualTo(request.userId()),
+                    () -> assertThat(response.getBody().data().loginId()).isEqualTo(request.loginId()),
                     () -> assertThat(response.getBody().data().gender()).hasToString(request.gender()),
                     () -> assertThat(response.getBody().data().email()).isEqualTo(request.email()),
                     () -> assertThat(response.getBody().data().birthDate()).isEqualTo(request.birthDate())
@@ -104,7 +104,7 @@ class UserV1ControllerE2ETest {
     class GetUser {
 
         @Test
-        @DisplayName("유저 정보를 조회할 때, 올바른 유저 ID를 제공하면 유저 정보를 반환한다.")
+        @DisplayName("유저 정보를 조회할 때, 존재하는 user.id로 조회하면 해당 유저 정보를 반환한다.")
         void getUserSuccess() {
             // arrange
             UserV1Dto.UserRegisterRequest registerRequest = new UserV1Dto.UserRegisterRequest(
@@ -116,11 +116,11 @@ class UserV1ControllerE2ETest {
 
             ParameterizedTypeReference<ApiResponse<UserV1Dto.UserRegisterResponse>> responseType = new ParameterizedTypeReference<>() {
             };
-            testRestTemplate.exchange(REGISTER_USER_ENDPOINT, HttpMethod.POST, new HttpEntity<>(registerRequest), responseType);
+            var registerResponse = testRestTemplate.exchange(REGISTER_USER_ENDPOINT, HttpMethod.POST, new HttpEntity<>(registerRequest), responseType);
 
-            String userId = registerRequest.userId();
+            Long userId = registerResponse.getBody().data().id();
             HttpHeaders headers = new HttpHeaders();
-            headers.add("X-USER-ID", userId);
+            headers.add("X-USER-ID", userId.toString());
 
             // act
             ResponseEntity<ApiResponse<UserV1Dto.UserResponse>> response =
@@ -133,7 +133,7 @@ class UserV1ControllerE2ETest {
                     () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK),
                     () -> assertThat(response.getBody()).isNotNull(),
                     () -> assertThat(response.getBody().data()).isNotNull(),
-                    () -> assertThat(response.getBody().data().userId()).isEqualTo(registerRequest.userId()),
+                    () -> assertThat(response.getBody().data().loginId()).isEqualTo(registerRequest.loginId()),
                     () -> assertThat(response.getBody().data().gender()).isEqualTo(registerRequest.gender()),
                     () -> assertThat(response.getBody().data().email()).isEqualTo(registerRequest.email()),
                     () -> assertThat(response.getBody().data().birthDate()).isEqualTo(registerRequest.birthDate())
@@ -141,12 +141,12 @@ class UserV1ControllerE2ETest {
         }
 
         @Test
-        @DisplayName("유저 정보를 조회할 때, 해당 UserId의 유저가 없으면 404 Not Found 응답을 반환한다.")
+        @DisplayName("유저 정보를 조회할 때, 해당 user.id의 유저가 없으면 404 Not Found 응답을 반환한다.")
         void getUserNotFound() {
             // arrange
-            String userId = "userId";
+            Long userId = 1L;
             HttpHeaders headers = new HttpHeaders();
-            headers.add("X-USER-ID", userId);
+            headers.add("X-USER-ID", userId.toString());
 
             // act
             ResponseEntity<ApiResponse<UserV1Dto.UserResponse>> response =
@@ -180,11 +180,11 @@ class UserV1ControllerE2ETest {
 
             ParameterizedTypeReference<ApiResponse<UserV1Dto.UserRegisterResponse>> responseType = new ParameterizedTypeReference<>() {
             };
-            testRestTemplate.exchange(REGISTER_USER_ENDPOINT, HttpMethod.POST, new HttpEntity<>(registerRequest), responseType);
+            var registerResponse = testRestTemplate.exchange(REGISTER_USER_ENDPOINT, HttpMethod.POST, new HttpEntity<>(registerRequest), responseType);
 
-            String userId = registerRequest.userId();
+            Long userId = registerResponse.getBody().data().id();
             HttpHeaders headers = new HttpHeaders();
-            headers.add("X-USER-ID", userId);
+            headers.add("X-USER-ID", userId.toString());
 
             // act
             ResponseEntity<ApiResponse<UserV1Dto.PointResponse>> response =
@@ -236,11 +236,11 @@ class UserV1ControllerE2ETest {
 
             ParameterizedTypeReference<ApiResponse<UserV1Dto.UserRegisterResponse>> responseType = new ParameterizedTypeReference<>() {
             };
-            testRestTemplate.exchange(REGISTER_USER_ENDPOINT, HttpMethod.POST, new HttpEntity<>(registerRequest), responseType);
+            var registerResponse = testRestTemplate.exchange(REGISTER_USER_ENDPOINT, HttpMethod.POST, new HttpEntity<>(registerRequest), responseType);
 
-            String userId = registerRequest.userId();
+            Long userId = registerResponse.getBody().data().id();
             HttpHeaders headers = new HttpHeaders();
-            headers.add("X-USER-ID", userId);
+            headers.add("X-USER-ID", userId.toString());
 
             ResponseEntity<ApiResponse<UserV1Dto.PointResponse>> getPointResponse =
                     testRestTemplate.exchange(GET_USER_POINT_ENDPOINT, HttpMethod.GET, new HttpEntity<>(headers),
@@ -271,9 +271,9 @@ class UserV1ControllerE2ETest {
         @DisplayName("존재하지 않는 UserId로 포인트 충전 시도 시, 404 Not Found 응답을 반환한다.")
         void chargeUserPointNotFound() {
             // arrange
-            String userId = "userId";
+            Long userId = 1L;
             HttpHeaders headers = new HttpHeaders();
-            headers.add("X-USER-ID", userId);
+            headers.add("X-USER-ID", userId.toString());
 
             UserV1Dto.PointChargeRequest chargeRequest = new UserV1Dto.PointChargeRequest(100L);
 

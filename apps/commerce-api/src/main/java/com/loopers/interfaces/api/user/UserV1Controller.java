@@ -19,7 +19,7 @@ public class UserV1Controller implements UserV1ApiSpec {
             @RequestBody @Valid UserV1Dto.UserRegisterRequest request
     ) {
         UserInfo userInfo = userFacade.registerUser(
-                request.userId(), request.gender(), request.email(), request.birthDate());
+                request.loginId(), request.gender(), request.email(), request.birthDate());
         UserV1Dto.UserRegisterResponse response = UserV1Dto.UserRegisterResponse.from(userInfo);
         return ApiResponse.success(response);
     }
@@ -27,7 +27,7 @@ public class UserV1Controller implements UserV1ApiSpec {
     @Override
     @GetMapping("/users/me")
     public ApiResponse<UserV1Dto.UserResponse> getUser(
-            @RequestHeader(value = "X-USER-ID") String userId
+            @RequestHeader(value = "X-USER-ID") Long userId
     ) {
         UserInfo userInfo = userFacade.getUser(userId);
         UserV1Dto.UserResponse response = UserV1Dto.UserResponse.from(userInfo);
@@ -37,7 +37,7 @@ public class UserV1Controller implements UserV1ApiSpec {
     @Override
     @GetMapping("/points")
     public ApiResponse<UserV1Dto.PointResponse> getPoint(
-            @RequestHeader(value = "X-USER-ID") String userId
+            @RequestHeader(value = "X-USER-ID") Long userId
     ) {
         Long point = userFacade.getPoint(userId);
         UserV1Dto.PointResponse response = new UserV1Dto.PointResponse(point);
@@ -47,7 +47,7 @@ public class UserV1Controller implements UserV1ApiSpec {
     @Override
     @PostMapping("/points/charge")
     public ApiResponse<UserV1Dto.PointChargeResponse> chargePoint(
-            @RequestHeader(value = "X-USER-ID") String userId,
+            @RequestHeader(value = "X-USER-ID") Long userId,
             @RequestBody @Valid UserV1Dto.PointChargeRequest request
     ) {
         Long point = userFacade.chargePoint(userId, request.point());

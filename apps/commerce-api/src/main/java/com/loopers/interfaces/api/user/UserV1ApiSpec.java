@@ -29,7 +29,7 @@ public interface UserV1ApiSpec {
                     name = "X-USER-ID",
                     description = "조회할 사용자의 ID"
             )
-            String userId
+            Long userId
     );
 
     @Operation(
@@ -41,7 +41,7 @@ public interface UserV1ApiSpec {
                     name = "X-USER-ID",
                     description = "조회할 사용자의 ID"
             )
-            String userId
+            Long userId
     );
 
     @Operation(
@@ -53,7 +53,7 @@ public interface UserV1ApiSpec {
                     name = "X-USER-ID",
                     description = "조회할 사용자의 ID"
             )
-            String userId,
+            Long userId,
             @Schema(
                     name = "포인트 충전 요청",
                     description = "포인트 충전에 필요한 정보를 담고 있는 요청 객체"

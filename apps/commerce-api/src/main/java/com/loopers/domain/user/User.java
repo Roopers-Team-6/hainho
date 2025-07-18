@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User extends BaseEntity {
     @Embedded
-    private UserId userId;
+    private LoginId loginId;
     @Enumerated(value = EnumType.STRING)
     private Gender gender;
     @Embedded
@@ -22,17 +22,17 @@ public class User extends BaseEntity {
     @Embedded
     private Point point;
 
-    private User(UserId userId, Gender gender, Email email, BirthDate birthDate, Point point) {
-        this.userId = userId;
+    private User(LoginId loginId, Gender gender, Email email, BirthDate birthDate, Point point) {
+        this.loginId = loginId;
         this.gender = gender;
         this.email = email;
         this.birthDate = birthDate;
         this.point = point;
     }
 
-    public static User register(String userId, String gender, String email, String birthDate) {
+    public static User register(String loginId, String gender, String email, String birthDate) {
         return new User(
-                new UserId(userId),
+                new LoginId(loginId),
                 Gender.from(gender),
                 new Email(email),
                 new BirthDate(birthDate),

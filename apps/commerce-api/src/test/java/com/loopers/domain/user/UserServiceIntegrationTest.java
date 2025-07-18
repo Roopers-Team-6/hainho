@@ -35,11 +35,11 @@ class UserServiceIntegrationTest {
     class FindUser {
 
         @Test
-        @DisplayName("존재하는 유저 ID로 조회하면, Optional<User>를 반환한다.")
+        @DisplayName("존재하는 user.id로 조회하면, Optional<User>를 반환한다.")
         void findExistingUser() {
             // Given
             User existingUser = userRepository.save(UserFixture.createUser());
-            UserId userId = existingUser.getUserId();
+            long userId = existingUser.getId();
 
             // When
             User foundUser = userService.find(userId).get();
@@ -52,10 +52,10 @@ class UserServiceIntegrationTest {
         }
 
         @Test
-        @DisplayName("존재하지 않는 유저 ID로 조회하면, 빈 Optional을 반환한다.")
+        @DisplayName("존재하지 않는 user.id로 조회하면, 빈 Optional을 반환한다.")
         void findNonExistingUser() {
             // Given
-            UserId nonExistingUserId = new UserId(UserFixture.VALID_USER_ID);
+            long nonExistingUserId = 1L;
 
             // When
             Optional<User> result = userService.find(nonExistingUserId);
@@ -70,11 +70,11 @@ class UserServiceIntegrationTest {
     class FindPoint {
 
         @Test
-        @DisplayName("존재하는 유저 ID로 조회하면, Optional<Point>를 반환한다.")
+        @DisplayName("존재하는 user.id로 조회하면, Optional<Point>를 반환한다.")
         void findExistingUserPoint() {
             // Given
             User existingUser = userRepository.save(UserFixture.createUser());
-            UserId userId = existingUser.getUserId();
+            long userId = existingUser.getId();
 
             // When
             Optional<Point> foundPoint = userService.findPoint(userId);
@@ -86,10 +86,10 @@ class UserServiceIntegrationTest {
         }
 
         @Test
-        @DisplayName("존재하지 않는 유저 ID로 조회하면, 빈 Optional을 반환한다.")
+        @DisplayName("존재하지 않는 user.id로 조회하면, 빈 Optional을 반환한다.")
         void findNonExistingUserPoint() {
             // Given
-            UserId nonExistingUserId = new UserId(UserFixture.VALID_USER_ID);
+            long nonExistingUserId = 1L;
 
             // When
             Optional<Point> result = userService.findPoint(nonExistingUserId);

@@ -25,7 +25,7 @@ class UserTest {
         class ValidUserCreation {
 
             // arrange
-            private final String validUserId = VALID_USER_ID;
+            private final String validUserId = VALID_LOGIN_ID;
             private final String validGender = VALID_GENDER;
             private final String validEmail = VALID_EMAIL;
             private final String validBirthDate = VALID_BIRTH_DATE;
@@ -38,7 +38,7 @@ class UserTest {
 
                 // assert
                 assertAll(
-                        () -> assertThat(user.getUserId().userId()).isEqualTo(validUserId),
+                        () -> assertThat(user.getLoginId().loginId()).isEqualTo(validUserId),
                         () -> assertThat(user.getGender()).hasToString(validGender),
                         () -> assertThat(user.getEmail().address()).isEqualTo(validEmail),
                         () -> assertThat(user.getBirthDate().birthDate()).isEqualTo(LocalDate.parse(validBirthDate))
@@ -57,8 +57,8 @@ class UserTest {
         }
 
         @Nested
-        @DisplayName("UserId가")
-        class UserId {
+        @DisplayName("LoginId가")
+        class LoginId {
 
             @ParameterizedTest
             @DisplayName("영문 및 숫자 10자 이내 형식에 맞지 않으면, BAD_REQUEST 예외가 발생한다.")
@@ -67,10 +67,10 @@ class UserTest {
                     "qwer!@#$", // 특수문자 포함
                     " ", // 빈 문자열
             })
-            void throwsBadRequestException_whenUserIdExceedsMaxLength(String invalidUserId) {
+            void throwsBadRequestException_whenUserIdExceedsMaxLength(String invalidLoginId) {
                 // act
                 CoreException result = assertThrows(CoreException.class, () -> {
-                    createUserWithUserId(invalidUserId);
+                    createUserWithLoginId(invalidLoginId);
                 });
 
                 // assert
@@ -78,14 +78,14 @@ class UserTest {
             }
 
             @Test
-            @DisplayName("null이면, BAD_REQUEST 예외가 발생한다.")
-            void throwsBadRequestException_whenUserIdIsNull() {
+            @DisplayName("null이면, BAD_REQUEST ,예외가 발생한다.")
+            void throwsBadRequestException_whenLoginIdIsNull() {
                 // arrange
-                String nullUserId = null;
+                String nullLoginId = null;
 
                 // act
                 CoreException result = assertThrows(CoreException.class, () -> {
-                    createUserWithUserId(nullUserId);
+                    createUserWithLoginId(nullLoginId);
                 });
 
                 // assert

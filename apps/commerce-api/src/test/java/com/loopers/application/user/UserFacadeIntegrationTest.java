@@ -45,19 +45,19 @@ class UserFacadeIntegrationTest {
         @DisplayName("성공하면, User가 저장된다.")
         void savesUserSuccessfully() {
             // arrange
-            String userId = UserFixture.VALID_USER_ID;
+            String loginId = UserFixture.VALID_LOGIN_ID;
             String gender = UserFixture.VALID_GENDER;
             String email = UserFixture.VALID_EMAIL;
             String birthDate = UserFixture.VALID_BIRTH_DATE;
 
             // act
-            UserInfo userInfo = userFacade.registerUser(userId, gender, email, birthDate);
+            UserInfo userInfo = userFacade.registerUser(loginId, gender, email, birthDate);
 
             // assert
             assertAll(
                     () -> assertThat(userInfo).isNotNull(),
                     () -> assertThat(userInfo.id()).isNotNull(),
-                    () -> assertThat(userInfo.userId()).isEqualTo(userId),
+                    () -> assertThat(userInfo.loginId()).isEqualTo(loginId),
                     () -> assertThat(userInfo.gender()).hasToString(gender),
                     () -> assertThat(userInfo.email()).isEqualTo(email),
                     () -> assertThat(userInfo.birthDate()).isEqualTo(birthDate)
@@ -66,20 +66,20 @@ class UserFacadeIntegrationTest {
         }
 
         @Test
-        @DisplayName("중복된 UserId가 있으면, BAD_REQUEST 예외가 발생한다.")
+        @DisplayName("중복된 loginId가 있으면, BAD_REQUEST 예외가 발생한다.")
         void throwsExceptionWhenDuplicateUserId() {
             // arrange
-            String duplicateUserId = "qwer1234";
+            String duplicateLoginId = "qwer1234";
             String gender = UserFixture.VALID_GENDER;
             String email = UserFixture.VALID_EMAIL;
             String email2 = "email2@gmail.com";
             String birthDate = UserFixture.VALID_BIRTH_DATE;
 
-            userFacade.registerUser(duplicateUserId, gender, email, birthDate); // 첫 번째 등록
+            userFacade.registerUser(duplicateLoginId, gender, email, birthDate); // 첫 번째 등록
 
             // act
             CoreException exception = assertThrows(CoreException.class, () -> {
-                userFacade.registerUser(duplicateUserId, gender, email2, birthDate); // 중복 등록 시도
+                userFacade.registerUser(duplicateLoginId, gender, email2, birthDate); // 중복 등록 시도
             });
 
             // assert
@@ -92,10 +92,10 @@ class UserFacadeIntegrationTest {
     @DisplayName("포인트 충전 시,")
     class ChargePoint {
         @Test
-        @DisplayName("존재하지 않는 UserId로 충전 시, NotFound 예외가 발생한다.")
+        @DisplayName("존재하지 않는 user.id 충전 시, NotFound 예외가 발생한다.")
         void throwsNotFoundExceptionWhenUserNotFound() {
             // arrange
-            String nonExistingUserId = UserFixture.VALID_USER_ID;
+            long nonExistingUserId = 1L;
             long chargeAmount = 1000;
 
             // act
@@ -108,20 +108,20 @@ class UserFacadeIntegrationTest {
         }
 
         @Test
-        @DisplayName("존재하는 UserId로 포인트를 충전하면, 충전된 포인트를 반환한다.")
+        @DisplayName("존재하는 user.id로 포인트를 충전하면, 충전된 포인트를 반환한다.")
         void chargesPointSuccessfully() {
             // arrange
-            String userId = UserFixture.VALID_USER_ID;
+            String userId = UserFixture.VALID_LOGIN_ID;
             String gender = UserFixture.VALID_GENDER;
             String email = UserFixture.VALID_EMAIL;
             String birthDate = UserFixture.VALID_BIRTH_DATE;
 
-            userFacade.registerUser(userId, gender, email, birthDate);
-
+            UserInfo userInfo = userFacade.registerUser(userId, gender, email, birthDate);
+            long id = userInfo.id();
             long chargeAmount = 1000;
 
             // act
-            Long chargedPoint = userFacade.chargePoint(userId, chargeAmount);
+            Long chargedPoint = userFacade.chargePoint(id, chargeAmount);
 
             // assert
             assertAll(
