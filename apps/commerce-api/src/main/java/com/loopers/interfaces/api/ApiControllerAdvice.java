@@ -8,6 +8,8 @@ import com.loopers.support.error.ErrorType;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -38,6 +40,23 @@ public class ApiControllerAdvice {
         return failureResponse(ErrorType.BAD_REQUEST, message);
     }
 
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ApiResponse<?>> handleValidation(MethodArgumentNotValidException e) {
+        String message = e.getBindingResult()
+                .getFieldErrors()
+                .stream()
+                .map(fe -> String.format("%s: %s", fe.getField(), fe.getDefaultMessage()))
+                .collect(Collectors.joining(", "));
+        return failureResponse(ErrorType.BAD_REQUEST, message);
+    }
+
+    @ExceptionHandler(MissingRequestHeaderException.class)
+    public ResponseEntity<ApiResponse<?>> handleBadRequest(MissingRequestHeaderException e) {
+        String headerName = e.getHeaderName();
+        String message = String.format("필수 요청 헤더 '%s'가 누락되었습니다.", headerName);
+        return failureResponse(ErrorType.BAD_REQUEST, message);
+    }
+
     @ExceptionHandler
     public ResponseEntity<ApiResponse<?>> handleBadRequest(MissingServletRequestParameterException e) {
         String name = e.getParameterName();
@@ -53,15 +72,15 @@ public class ApiControllerAdvice {
 
         if (rootCause instanceof InvalidFormatException invalidFormat) {
             String fieldName = invalidFormat.getPath().stream()
-                .map(ref -> ref.getFieldName() != null ? ref.getFieldName() : "?")
-                .collect(Collectors.joining("."));
+                    .map(ref -> ref.getFieldName() != null ? ref.getFieldName() : "?")
+                    .collect(Collectors.joining("."));
 
             String valueIndicationMessage = "";
             if (invalidFormat.getTargetType().isEnum()) {
                 Class<?> enumClass = invalidFormat.getTargetType();
                 String enumValues = Arrays.stream(enumClass.getEnumConstants())
-                    .map(Object::toString)
-                    .collect(Collectors.joining(", "));
+                        .map(Object::toString)
+                        .collect(Collectors.joining(", "));
                 valueIndicationMessage = "사용 가능한 값 : [" + enumValues + "]";
             }
 
@@ -69,20 +88,20 @@ public class ApiControllerAdvice {
             Object value = invalidFormat.getValue();
 
             errorMessage = String.format("필드 '%s'의 값 '%s'이(가) 예상 타입(%s)과 일치하지 않습니다. %s",
-                fieldName, value, expectedType, valueIndicationMessage);
+                    fieldName, value, expectedType, valueIndicationMessage);
 
         } else if (rootCause instanceof MismatchedInputException mismatchedInput) {
             String fieldPath = mismatchedInput.getPath().stream()
-                .map(ref -> ref.getFieldName() != null ? ref.getFieldName() : "?")
-                .collect(Collectors.joining("."));
+                    .map(ref -> ref.getFieldName() != null ? ref.getFieldName() : "?")
+                    .collect(Collectors.joining("."));
             errorMessage = String.format("필수 필드 '%s'이(가) 누락되었습니다.", fieldPath);
 
         } else if (rootCause instanceof JsonMappingException jsonMapping) {
             String fieldPath = jsonMapping.getPath().stream()
-                .map(ref -> ref.getFieldName() != null ? ref.getFieldName() : "?")
-                .collect(Collectors.joining("."));
+                    .map(ref -> ref.getFieldName() != null ? ref.getFieldName() : "?")
+                    .collect(Collectors.joining("."));
             errorMessage = String.format("필드 '%s'에서 JSON 매핑 오류가 발생했습니다: %s",
-                fieldPath, jsonMapping.getOriginalMessage());
+                    fieldPath, jsonMapping.getOriginalMessage());
 
         } else {
             errorMessage = "요청 본문을 처리하는 중 오류가 발생했습니다. JSON 메세지 규격을 확인해주세요.";
@@ -121,6 +140,6 @@ public class ApiControllerAdvice {
 
     private ResponseEntity<ApiResponse<?>> failureResponse(ErrorType errorType, String errorMessage) {
         return ResponseEntity.status(errorType.getStatus())
-            .body(ApiResponse.fail(errorType.getCode(), errorMessage != null ? errorMessage : errorType.getMessage()));
+                .body(ApiResponse.fail(errorType.getCode(), errorMessage != null ? errorMessage : errorType.getMessage()));
     }
 }
