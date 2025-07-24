@@ -7,6 +7,11 @@ classDiagram
         - String description
     }
 
+    class ProductLike {
+        - Product product
+        - User user
+    }
+
     class Brand {
         - String name
         - String description
@@ -16,6 +21,11 @@ classDiagram
         - BigInt amount
     }
 
+    class User {
+    }
+
     Product "N" --> Brand: 참조
     Product --> Price: 소유
+    ProductLike "N" --> Product: 참조
+    ProductLike "N" --> User: 참조
 ```
