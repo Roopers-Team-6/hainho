@@ -1,3 +1,5 @@
+## 상품 목록 조회
+
 ```mermaid
 sequenceDiagram
     participant U as User
@@ -17,4 +19,28 @@ sequenceDiagram
     PC ->> PS: 상품 목록 조회 (brandId, sort, page, size)
     PS ->> PR: 상품 목록 조회 (brandId, sort, page, size)
     PR -->> U: 상품 목록 반환 
+```
+
+## 상품 상세 조회
+
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant PC as ProductController
+    participant PS as ProductService
+    participant BS as BrandService
+    participant PR as ProductRepository
+    U ->> PC: 상품 상세 조회 요청 (productId)
+    PC ->> PS: 상품 상세 조회 (productId)
+    PS ->> PR: 상품 상세 조회 (productId)
+    alt 상품 미존재
+        PR -->> PS: 404 NOT FOUND
+    end
+    PR -->> PS: 상품 정보 반환
+    PS ->> BS: 상품의 브랜드 정보 조회 (brandId)
+    alt 상품의 브랜드 미존재
+        BS -->> PS: 500 Internal Server Error
+    end
+    BS -->> PS: 브랜드 정보 반환
+    PS -->> U: 상품 상세 정보 반환
 ```
