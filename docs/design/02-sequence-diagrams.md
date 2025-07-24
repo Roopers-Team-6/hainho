@@ -63,3 +63,33 @@ sequenceDiagram
     end
     BS -->> U: 브랜드 상세 응답
 ```
+
+## 상품 좋아요 등록
+
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant PC as ProductController
+    participant US as UserService
+    participant PS as ProductService
+    participant PR as ProductRepository
+    participant PLR as ProductLikeRepository
+    U ->> PC: 상품 좋아요 등록 요청 (productId)
+    alt 유저 인증 실패
+        PC ->> U: 401 UNAUTHORIZED
+    end
+    PC ->> PS: 상품 좋아요 등록 (productId)
+    PS ->> PR: 상품 조회 (productId)
+    alt 상품 미존재
+        PR -->> PS: 404 NOT FOUND
+    else 상품 존재
+        PR -->> PS: 상품 정보 반환
+    end
+    PS ->> PLR: 상품 좋아요 등록 (productId, userId)
+    alt 이미 존재하는 상품 좋아요
+        PLR -->> PS: 409 CONFLICT
+    else 상품 좋아요 등록 성공
+        PLR -->> PS: 좋아요 등록 성공
+    end
+    PS -->> U: 좋아요 등록 성공 응답
+```
