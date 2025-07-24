@@ -44,3 +44,22 @@ sequenceDiagram
     BS -->> PS: 브랜드 정보 반환
     PS -->> U: 상품 상세 정보 반환
 ```
+
+## 브랜드 상세 조회
+
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant BC as BrandController
+    participant BS as BrandService
+    participant BR as BrandRepository
+    U ->> BC: 브랜드 상세 조회 요청 (brandId)
+    BC ->> BS: 브랜드 상세 조회 (brandId)
+    BS ->> BR: 브랜드 상세 조회 (brandId)
+    alt 브랜드 미존재
+        BR -->> BS: 404 NOT FOUND
+    else 브랜드 존재
+        BR -->> BS: 브랜드 상세 정보 반환
+    end
+    BS -->> U: 브랜드 상세 응답
+```
