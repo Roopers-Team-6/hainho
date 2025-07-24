@@ -14,7 +14,8 @@
 - 상품 목록 조회는 페이지네이션으로 제공된다.
 - 상품 목록 조회는 brandId로 필터링할 수 있다.
 - 상품 목록 조회는 latest, price_asc 으로 정렬할 수 있다.
-- 상품 목록은 product_id, product_name, price, isLiked, brand_id, brand_name, page, max_page, size를 포함한다.
+- 상품 목록은 product_id, product_name, price, isProductLiked, productLikeCount, brand_id, brand_name, page, max_page, size를
+  포함한다.
 - 조회된 상품이 없는 경우, 빈 배열을 반환한다.
 - 존재하지 않는 sort 방식이 요청된 경우, 기본 sort 방식인 latest로 처리한다.
 - page가 0 미만인 경우, 0으로 처리한다.
@@ -45,7 +46,8 @@
 
 - 유저는 로그인 여부와 관계없이 상품 상세를 조회할 수 있다.
 - 상품 상세 조회는 product_id로 조회한다.
-- 상품 상세 조회는 product_id, product_name, product_description, price, isLiked, brand_id, brand_name, brand_description을
+- 상품 상세 조회는 product_id, product_name, product_description, price, isProductLiked, productLikeCount, brand_id,
+  brand_name, brand_description을
   포함한다.
 
 #### < Constraints > = 제약 조건
@@ -170,3 +172,35 @@
 | 상품 미존재      | 잘못된 product_id                  | 404 NOT FOUND             |
 | 좋아요 미존재     | 이미 좋아요 취소된 상품에 대해 다시 좋아요 취소 시도  | 409 Conflict              |
 | 좋아요 삭제 중 예외 | DB 연결 실패, ..                    | 500 Internal Server Error |
+
+## 상품 좋아요 목록 조회
+
+### 유저 스토리
+
+- 유저는 상품 좋아요 등록을 한 뒤, 자신의 상품 좋아요 목록에서 해당 상품을 확인할 수 있다.
+
+### 기능적 요구사항
+
+#### < Happy Path > = 낙관적으로 동작하기를 기대하는 케이스
+
+- 유저는 로그인한 상태에서만 자신의 상품 좋아요 목록을 조회할 수 있다.
+- 상품 좋아요의 상품이 존재하지 않는 경우, 해당 상품은 목록에 포함되지 않는다.
+- 상품 좋아요가 등록되지 않은 경우, 빈 배열을 반환한다.
+- 상품 좋아요 목록은 product_id, product_name, price, isProductLiked, productLikeCount, brand_id, brand_name을 포함한다.
+
+#### < Constraints > = 제약 조건
+
+#### < Fail Cases > = 실패 케이스 (xx 면, 오류를 반환한다.)
+
+- 유저가 로그인하지 않은 상태에서 좋아요 목록을 조회하면, 오류를 반환한다.
+
+### 비기능적 요구사항
+
+- 유저 인증은 X-USER-ID Header 기반으로 처리된다.
+- 상품 좋아요 목록 조회는 1초 이내에 응답해야 한다.
+- 오류 상황에서는 명확한 HTTP 상태코드와 에러메시지를 반환해야 한다.
+
+| 케이스            | 설명                              | HTTP 상태코드                 |
+|----------------|---------------------------------|---------------------------|
+| 유저 인증 실패       | X-USER-ID Header 없음, 유저 존재하지 않음 | 401 UNAUTHORIZED          |
+| 상품 좋아요 조회 중 예외 | DB 연결 실패, ..                    | 500 Internal Server Error | 
