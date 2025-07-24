@@ -14,7 +14,7 @@
 - 상품 목록 조회는 페이지네이션으로 제공된다.
 - 상품 목록 조회는 brandId로 필터링할 수 있다.
 - 상품 목록 조회는 latest, price_asc 으로 정렬할 수 있다.
-- 상품 목록은 product_id, product_name, price, brand_id, brand_name, page, max_page, size를 포함한다.
+- 상품 목록은 product_id, product_name, price, isLiked, brand_id, brand_name, page, max_page, size를 포함한다.
 - 조회된 상품이 없는 경우, 빈 배열을 반환한다.
 - 존재하지 않는 sort 방식이 요청된 경우, 기본 sort 방식인 latest로 처리한다.
 - page가 0 미만인 경우, 0으로 처리한다.
@@ -45,7 +45,8 @@
 
 - 유저는 로그인 여부와 관계없이 상품 상세를 조회할 수 있다.
 - 상품 상세 조회는 product_id로 조회한다.
-- 상품 상세 조회는 product_id, product_name, product_description, price, brand_id, brand_name, brand_description을 포함한다.
+- 상품 상세 조회는 product_id, product_name, product_description, price, isLiked, brand_id, brand_name, brand_description을
+  포함한다.
 
 #### < Constraints > = 제약 조건
 
