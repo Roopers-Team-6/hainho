@@ -123,3 +123,20 @@ sequenceDiagram
     end
     PS -->> U: 좋아요 취소 성공 응답
 ```
+
+## 상품 좋아요 목록 조회
+
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant PC as ProductController
+    participant PS as ProductService
+    participant PLR as ProductLikeRepository
+    U ->> PC: 상품 좋아요 목록 조회 요청
+    alt 유저 인증 실패
+        PC ->> U: 401 UNAUTHORIZED
+    end
+    PC ->> PS: 상품 좋아요 목록 조회 (userId)
+    PS ->> PLR: 상품 좋아요 목록 조회 (userId)
+    PLR -->> U: 상품 좋아요 목록 반환
+```
