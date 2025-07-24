@@ -4,10 +4,12 @@ classDiagram
         - Brand brand
         - String name
         - Price price
+        - String description
     }
 
     class Brand {
         - String name
+        - String description
     }
 
     class Price {
