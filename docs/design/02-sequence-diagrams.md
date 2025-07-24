@@ -140,3 +140,39 @@ sequenceDiagram
     PS ->> PLR: 상품 좋아요 목록 조회 (userId)
     PLR -->> U: 상품 좋아요 목록 반환
 ```
+
+## 주문 생성
+
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant OC as OrderController
+    participant PMS as PaymentService
+    participant OS as OrderService
+    participant PS as ProductService
+    participant OR as OrderRepository
+    U ->> OC: 주문 생성 요청
+    alt 유저 인증 실패
+        OC ->> U: 401 UNAUTHORIZED
+    else 유저 인증 성공
+        OC ->> PS: 상품 정보 조회
+        alt 상품 미존재
+            PS -->> OC: 404 NOT FOUND
+        else 상품 존재
+            PS -->> OC: 상품 정보 반환
+            OC ->> PMS: 결제 처리 (포인트 차감, 포인트 사용 내역 기록)
+            alt 포인트 부족
+                PMS -->> OC: 400 BAD REQUEST (포인트 부족)
+            else 결제 성공
+                PMS -->> OC: 결제 성공
+                OC ->> OS: 주문 생성 (재고 차감)
+                alt 재고 부족
+                    OS -->> OC: 409 CONFLICT (재고 부족)
+                else 주문 생성 성공
+                    OS ->> OR: 주문 정보 저장
+                    OR -->> OS: 주문 정보 저장 성공
+                end
+            end
+        end
+    end
+```
