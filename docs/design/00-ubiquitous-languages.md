@@ -10,4 +10,10 @@
 | 상품 좋아요     | ProductLike      | 유저가 상품에 관심을 표시하는 기능    |
 | 상품 좋아요 여부  | IsProductLiked   | 유저가 상품을 좋아요 했는지 여부     |
 | 총 상품 좋아요 수 | ProductLikeCount | 상품에 대한 총 좋아요 수         |
+| 상품 재고      | ProductStock     | 상품의 구매 가능한 수량          |
+| 주문         | Order            | 유저가 상품을 구매하는 행위        |
+| 주문 상품      | OrderLine        | 주문에 포함된 상품 정보          |
+| 포인트        | Point            | 유저가 결제시에 지불하는 포인트      |
+| 포인트 내역     | PointHistory     | 유저의 포인트 사용 및 충전 내역     |
+
  

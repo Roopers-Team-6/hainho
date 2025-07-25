@@ -14,7 +14,8 @@
 - 상품 목록 조회는 페이지네이션으로 제공된다.
 - 상품 목록 조회는 brandId로 필터링할 수 있다.
 - 상품 목록 조회는 latest, price_asc 으로 정렬할 수 있다.
-- 상품 목록은 product_id, product_name, price, isProductLiked, productLikeCount, brand_id, brand_name, page, max_page, size를
+- 상품 목록은 product_id, product_name, price, isProductLiked, productLikeCount, productStockQuantity, brand_id, brand_name,
+  page, max_page, size를
   포함한다.
 - 조회된 상품이 없는 경우, 빈 배열을 반환한다.
 - 존재하지 않는 sort 방식이 요청된 경우, 기본 sort 방식인 latest로 처리한다.
@@ -46,7 +47,8 @@
 
 - 유저는 로그인 여부와 관계없이 상품 상세를 조회할 수 있다.
 - 상품 상세 조회는 product_id로 조회한다.
-- 상품 상세 조회는 product_id, product_name, product_description, price, isProductLiked, productLikeCount, brand_id,
+- 상품 상세 조회는 product_id, product_name, product_description, price, isProductLiked, productStockQuantity,
+  productLikeCount, brand_id,
   brand_name, brand_description을
   포함한다.
 
@@ -204,3 +206,41 @@
 |----------------|---------------------------------|---------------------------|
 | 유저 인증 실패       | X-USER-ID Header 없음, 유저 존재하지 않음 | 401 UNAUTHORIZED          |
 | 상품 좋아요 조회 중 예외 | DB 연결 실패, ..                    | 500 Internal Server Error | 
+
+## 주문 생성
+
+### 유저 스토리
+
+- 유저는 상품 목록을 조회한 뒤, 여러 상품을 담은 주문을 생성할 수 있다.
+- 유저는 상품 상세 정보를 조회한 뒤, 해당 상품을 담은 주문을 생성할 수 있다.
+
+### 기능적 요구사항
+
+#### < Happy Path > = 낙관적으로 동작하기를 기대하는 케이스
+
+- 유저는 로그인한 상태에서만 주문을 생성할 수 있다.
+- 주문된 상품은 상품의 재고가 주문된 수량 만큼 차감된다.
+- 유저의 포인트는 주문된 상품의 총 가격만큼 차감된다.
+- 포인트가 차감되면 포인트 내역에 포인트 차감 내역이 추가된다.
+- 주문에는 주문된 상품의 수량과 현재 가격이 저장된다.
+
+#### < Constraints > = 제약 조건
+
+#### < Fail Cases > = 실패 케이스 (xx 면, 오류를 반환한다.)
+
+- 유저가 로그인하지 않은 상태에서 주문을 생성하면, 오류를 반환한다.
+- 유저의 포인트가 부족한 경우, 오류를 반환한다.
+- 주문된 상품의 재고가 부족한 경우, 오류를 반환한다.
+
+### 비기능적 요구사항
+
+- 유저 인증은 X-USER-ID Header 기반으로 처리된다.
+- 주문 생성은 1초 이내에 응답해야 한다.
+- 오류 상황에서는 명확한 HTTP 상태코드와 에러메시지를 반환해야 한다.
+
+| 케이스        | 설명                              | HTTP 상태코드                 |
+|------------|---------------------------------|---------------------------|
+| 유저 인증 실패   | X-USER-ID Header 없음, 유저 존재하지 않음 | 401 UNAUTHORIZED          |
+| 포인트 부족     | 유저의 포인트가 부족한 경우                 | 400 BAD REQUEST           |
+| 재고 부족      | 주문된 상품의 재고가 부족한 경우              | 409 CONFLICT              |
+| 주문 생성 중 예외 | DB 연결 실패, 외부 시스템 전송 실패 등        | 500 Internal Server Error |
