@@ -5,10 +5,12 @@ import com.loopers.domain.brand.vo.BrandDescription;
 import com.loopers.domain.brand.vo.BrandName;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
+@Table(name = "brand")
 @NoArgsConstructor(access = lombok.AccessLevel.PROTECTED)
 @Getter
 public class Brand extends BaseEntity {

@@ -12,9 +12,10 @@ import lombok.NoArgsConstructor;
 @Entity
 @NoArgsConstructor(access = lombok.AccessLevel.PROTECTED)
 @Getter
-@Table(uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"userId", "productId"})
-})
+@Table(name = "like_products",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"userId", "productId"})
+        })
 public class LikeProduct extends BaseEntity {
     private Long userId;
     private Long productId;

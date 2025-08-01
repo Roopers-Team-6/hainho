@@ -7,10 +7,12 @@ import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
+@Table(name = "order_item")
 @NoArgsConstructor(access = lombok.AccessLevel.PROTECTED)
 @Getter
 public class OrderItem extends BaseEntity {
