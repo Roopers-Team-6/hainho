@@ -1,8 +1,8 @@
 package com.loopers.infrastructure.user;
 
-import com.loopers.domain.user.LoginId;
 import com.loopers.domain.user.User;
 import com.loopers.domain.user.UserRepository;
+import com.loopers.domain.user.vo.LoginId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

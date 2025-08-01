@@ -1,6 +1,10 @@
 package com.loopers.domain.user;
 
 import com.loopers.domain.BaseEntity;
+import com.loopers.domain.user.vo.BirthDate;
+import com.loopers.domain.user.vo.Email;
+import com.loopers.domain.user.vo.LoginId;
+import com.loopers.domain.user.vo.Point;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -32,15 +36,19 @@ public class User extends BaseEntity {
 
     public static User register(String loginId, String gender, String email, String birthDate) {
         return new User(
-                new LoginId(loginId),
+                LoginId.of(loginId),
                 Gender.from(gender),
-                new Email(email),
-                new BirthDate(birthDate),
+                Email.of(email),
+                BirthDate.of(birthDate),
                 Point.ZERO
         );
     }
 
     public void chargePoint(long point) {
         this.point = this.point.charge(point);
+    }
+
+    public void usePoint(Long point) {
+        this.point = this.point.use(point);
     }
 }

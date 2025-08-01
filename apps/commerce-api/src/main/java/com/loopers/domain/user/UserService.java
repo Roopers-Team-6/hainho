@@ -1,6 +1,8 @@
 package com.loopers.domain.user;
 
 import com.loopers.application.user.UserReader;
+import com.loopers.domain.user.vo.LoginId;
+import com.loopers.domain.user.vo.Point;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;

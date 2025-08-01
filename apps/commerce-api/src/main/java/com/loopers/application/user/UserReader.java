@@ -1,8 +1,8 @@
 package com.loopers.application.user;
 
-import com.loopers.domain.user.LoginId;
-import com.loopers.domain.user.Point;
 import com.loopers.domain.user.User;
+import com.loopers.domain.user.vo.LoginId;
+import com.loopers.domain.user.vo.Point;
 
 import java.util.Optional;
 
