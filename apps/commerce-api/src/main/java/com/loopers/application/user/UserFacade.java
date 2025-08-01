@@ -1,9 +1,9 @@
 package com.loopers.application.user;
 
-import com.loopers.domain.user.LoginId;
-import com.loopers.domain.user.Point;
 import com.loopers.domain.user.User;
 import com.loopers.domain.user.UserRepository;
+import com.loopers.domain.user.vo.LoginId;
+import com.loopers.domain.user.vo.Point;
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +24,7 @@ public class UserFacade {
     }
 
     private void checkDuplicateLoginId(String loginId) {
-        if (userReader.exists(new LoginId(loginId))) {
+        if (userReader.exists(LoginId.of(loginId))) {
             throw new CoreException(ErrorType.BAD_REQUEST, "LoginId가 이미 존재합니다.");
         }
     }
@@ -38,7 +38,7 @@ public class UserFacade {
     public Long getPoint(long userId) {
         Point point = userReader.findPoint(userId)
                 .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "id에 해당하는 User를 찾을 수 없습니다."));
-        return point.balance();
+        return point.getBalance();
     }
 
     @Transactional
@@ -46,6 +46,16 @@ public class UserFacade {
         User user = userReader.find(userId)
                 .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "id에 해당하는 User를 찾을 수 없습니다."));
         user.chargePoint(point);
-        return user.getPoint().balance();
+        return user.getPoint().getBalance();
+    }
+
+    @Transactional
+    public void usePoint(long userId, Long point) {
+        User user = userReader.find(userId)
+                .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "id에 해당하는 User를 찾을 수 없습니다."));
+        if (user.getPoint().getBalance() < point) {
+            throw new CoreException(ErrorType.BAD_REQUEST, "포인트가 부족합니다.");
+        }
+        user.usePoint(point);
     }
 }

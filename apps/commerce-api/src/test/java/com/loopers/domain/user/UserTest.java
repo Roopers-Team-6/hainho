@@ -38,10 +38,10 @@ class UserTest {
 
                 // assert
                 assertAll(
-                        () -> assertThat(user.getLoginId().loginId()).isEqualTo(validUserId),
+                        () -> assertThat(user.getLoginId().getLoginId()).isEqualTo(validUserId),
                         () -> assertThat(user.getGender()).hasToString(validGender),
-                        () -> assertThat(user.getEmail().address()).isEqualTo(validEmail),
-                        () -> assertThat(user.getBirthDate().birthDate()).isEqualTo(LocalDate.parse(validBirthDate))
+                        () -> assertThat(user.getEmail().getAddress()).isEqualTo(validEmail),
+                        () -> assertThat(user.getBirthDate().getBirthDate()).isEqualTo(LocalDate.parse(validBirthDate))
                 );
             }
 
@@ -52,7 +52,7 @@ class UserTest {
                 User user = createUser(validUserId, validGender, validEmail, validBirthDate);
 
                 // assert
-                assertThat(user.getPoint().balance()).isZero();
+                assertThat(user.getPoint().getBalance()).isZero();
             }
         }
 
@@ -270,7 +270,7 @@ class UserTest {
             user.chargePoint(amount);
 
             // assert
-            assertThat(user.getPoint().balance()).isEqualTo(amount);
+            assertThat(user.getPoint().getBalance()).isEqualTo(amount);
         }
     }
 }
