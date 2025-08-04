@@ -12,10 +12,10 @@ public record UserInfo(
     public static UserInfo of(User user) {
         return new UserInfo(
                 user.getId(),
-                user.getLoginId().loginId(),
+                user.getLoginId().getLoginId(),
                 user.getGender().toString(),
-                user.getEmail().address(),
-                user.getBirthDate().birthDate().toString()
+                user.getEmail().getAddress(),
+                user.getBirthDate().getBirthDate().toString()
         );
     }
 }
