@@ -40,30 +40,12 @@ public class LikeService {
 
     @Transactional
     public void increaseLikeProductCount(Long productId) {
-        Optional<LikeProductCount> optional = findLikeProductCount(productId);
-        if (optional.isEmpty()) {
-            return;
-        }
-        LikeProductCount likeProductCount = optional.get();
-        likeProductCount.increase();
+        likeProductCountRepository.increaseLikeCount(productId);
     }
 
     @Transactional
     public void decreaseLikeProductCount(Long productId) {
-        Optional<LikeProductCount> optional = findLikeProductCount(productId);
-        if (optional.isEmpty()) {
-            return;
-        }
-        LikeProductCount likeProductCount = optional.get();
-        likeProductCount.decrease();
-    }
-
-    private Optional<LikeProductCount> findLikeProductCount(Long productId) {
-        Optional<LikeProductCount> optional = likeProductCountRepository.find(productId);
-        if (optional.isEmpty()) {
-            log.error("Like product count not found for productId: {}", productId);
-        }
-        return optional;
+        likeProductCountRepository.decreaseLikeCount(productId);
     }
 
     @Transactional(readOnly = true)
