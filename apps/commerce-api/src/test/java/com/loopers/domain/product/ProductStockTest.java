@@ -42,18 +42,15 @@ class ProductStockTest {
         class Stock {
 
             @ParameterizedTest
-            @DisplayName("없거나, 0보다 작으면, BAD_REQUEST 예외가 발생한다")
+            @DisplayName("없거나, 0보다 작으면, IllegalArgumentException 예외가 발생한다")
             @ValueSource(longs = {-1L, -100L})
             @NullSource
                 // null도 테스트
-            void whenStockIsNullOrLessThanZeroThrowsBadRequest(Long stock) {
-                // act
-                CoreException result = assertThrows(CoreException.class, () -> {
+            void whenStockIsNullOrLessThanZeroThrowsIllegalArgumentException(Long stock) {
+                // act && assert
+                assertThrows(IllegalArgumentException.class, () -> {
                     ProductStockFixture.createProductStockWithQuantity(stock);
                 });
-
-                // assert
-                assertThat(result.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
             }
         }
     }
@@ -63,38 +60,32 @@ class ProductStockTest {
     class DeductStock {
 
         @ParameterizedTest
-        @DisplayName("차감하려는 값이 없거나 1 미만인 경우, BAD_REQUEST 예외가 발생한다")
+        @DisplayName("차감하려는 값이 없거나 1 미만인 경우, IllegalArgumentException 예외가 발생한다")
         @ValueSource(longs = {0L, -1L, -100L})
         @NullSource
             // null도 테스트
-        void whenDeductingInvalidStockThrowsBadRequest(Long quantityToDeduct) {
+        void whenDeductingInvalidStockThrowsIllegalArgumentException(Long quantityToDeduct) {
             // arrange
             ProductStock productStock = ProductStockFixture.createProductStockWithQuantity(10L);
 
-            // act
-            CoreException result = assertThrows(CoreException.class, () -> {
+            // act && assert
+            assertThrows(IllegalArgumentException.class, () -> {
                 productStock.deduct(quantityToDeduct);
             });
-
-            // assert
-            assertThat(result.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
         }
 
         @Test
-        @DisplayName("남은 재고가 차감하려는 수량보다 적은 경우, BAD_REQUEST 예외가 발생한다")
-        void whenDeductingMoreThanAvailableStockThrowsBadRequest() {
+        @DisplayName("남은 재고가 차감하려는 수량보다 적은 경우, IllegalStateException 예외가 발생한다")
+        void whenDeductingMoreThanAvailableStockThrowsIllegalStateException() {
             // arrange
             Long quantity = 10L;
             ProductStock productStock = ProductStockFixture.createProductStockWithQuantity(quantity);
             Long quantityToDeduct = quantity + 1; // 남은 재고보다 1개 더 차감하려고 함
 
-            // act
-            CoreException result = assertThrows(CoreException.class, () -> {
+            // act && assert
+            assertThrows(IllegalStateException.class, () -> {
                 productStock.deduct(quantityToDeduct);
             });
-
-            // assert
-            assertThat(result.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
         }
 
         @Test

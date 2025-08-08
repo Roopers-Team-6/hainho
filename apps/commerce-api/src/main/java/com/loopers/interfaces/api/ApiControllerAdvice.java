@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -122,8 +123,26 @@ public class ApiControllerAdvice {
     }
 
     @ExceptionHandler
+    public ResponseEntity<ApiResponse<?>> handleBadRequest(IllegalArgumentException e) {
+        String message = e.getMessage() != null ? e.getMessage() : "잘못된 요청입니다.";
+        return failureResponse(ErrorType.BAD_REQUEST, message);
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<ApiResponse<?>> handleBadRequest(IllegalStateException e) {
+        String message = e.getMessage() != null ? e.getMessage() : "잘못된 상태입니다.";
+        return failureResponse(ErrorType.BAD_REQUEST, message);
+    }
+
+    @ExceptionHandler
     public ResponseEntity<ApiResponse<?>> handleNotFound(NoResourceFoundException e) {
         return failureResponse(ErrorType.NOT_FOUND, null);
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<ApiResponse<?>> handleNotFound(EntityNotFoundException e) {
+        String message = e.getMessage() != null ? e.getMessage() : "요청한 리소스를 찾을 수 없습니다.";
+        return failureResponse(ErrorType.NOT_FOUND, message);
     }
 
     @ExceptionHandler

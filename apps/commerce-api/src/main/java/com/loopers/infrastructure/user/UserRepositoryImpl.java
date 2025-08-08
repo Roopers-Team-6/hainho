@@ -3,13 +3,14 @@ package com.loopers.infrastructure.user;
 import com.loopers.domain.user.User;
 import com.loopers.domain.user.UserRepository;
 import com.loopers.domain.user.vo.LoginId;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
 
-@RequiredArgsConstructor
 @Component
+@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public class UserRepositoryImpl implements UserRepository {
     private final UserJpaRepository userJpaRepository;
 

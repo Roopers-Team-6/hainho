@@ -105,31 +105,17 @@ class LikeServiceTest {
     class WhenCallingIncreaseLikeProductCount {
 
         @Test
-        @DisplayName("상품 좋아요 카운트가 존재하면, 상품 좋아요 카운트를 증가시킨다.")
-        void shouldIncreaseLikeProductCountWhenExists() {
+        @DisplayName("상품 좋아요 존재 여부와 상관없이, increaseLikeProductCount 메서드를 호출한다.")
+        void shouldIncreaseLikeProductCountRegardlessOfExistence() {
             // arrange
             Long productId = 1L;
-            LikeProductCount likeProductCount = mock(LikeProductCount.class);
-            when(likeProductCountRepository.find(productId)).thenReturn(Optional.of(likeProductCount));
+            when(likeProductCountRepository.increaseLikeCount(productId)).thenReturn(1);
 
             // act
             likeService.increaseLikeProductCount(productId);
 
             // assert
-            verify(likeProductCount).increase();
-        }
-
-        @Test
-        @DisplayName("상품 좋아요 카운트가 존재하지 않으면, 상품 좋아요 카운트를 증가시키지 않는다.")
-        void shouldNotIncreaseLikeProductCountWhenNotExists() {
-            // arrange
-            Long productId = 1L;
-            when(likeProductCountRepository.find(productId)).thenReturn(Optional.empty());
-
-            // act
-            likeService.increaseLikeProductCount(productId);
-
-            // assert
+            verify(likeProductCountRepository, times(1)).increaseLikeCount(productId);
         }
     }
 
@@ -138,31 +124,17 @@ class LikeServiceTest {
     class WhenCallingDecreaseLikeProductCount {
 
         @Test
-        @DisplayName("상품 좋아요 카운트가 존재하면, 상품 좋아요 카운트를 감소시킨다.")
-        void shouldDecreaseLikeProductCountWhenExists() {
+        @DisplayName("상품 좋아요 존재 여부와 상관없이, decreaseLikeProductCount 메서드를 호출한다.")
+        void shouldDecreaseLikeProductCountRegardlessOfExistence() {
             // arrange
             Long productId = 1L;
-            LikeProductCount likeProductCount = mock(LikeProductCount.class);
-            when(likeProductCountRepository.find(productId)).thenReturn(Optional.of(likeProductCount));
+            when(likeProductCountRepository.decreaseLikeCount(productId)).thenReturn(1);
 
             // act
             likeService.decreaseLikeProductCount(productId);
 
             // assert
-            verify(likeProductCount).decrease();
-        }
-
-        @Test
-        @DisplayName("상품 좋아요 카운트가 존재하지 않으면, 상품 좋아요 카운트를 감소시키지 않는다.")
-        void shouldNotDecreaseLikeProductCountWhenNotExists() {
-            // arrange
-            Long productId = 1L;
-            when(likeProductCountRepository.find(productId)).thenReturn(Optional.empty());
-
-            // act
-            likeService.decreaseLikeProductCount(productId);
-
-            // assert
+            verify(likeProductCountRepository, times(1)).decreaseLikeCount(productId);
         }
     }
 }

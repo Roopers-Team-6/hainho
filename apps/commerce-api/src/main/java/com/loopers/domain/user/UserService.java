@@ -2,15 +2,16 @@ package com.loopers.domain.user;
 
 import com.loopers.application.user.UserReader;
 import com.loopers.domain.user.vo.LoginId;
-import com.loopers.domain.user.vo.Point;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
-@RequiredArgsConstructor
+
 @Component
+@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public class UserService implements UserReader {
     private final UserRepository userRepository;
 
@@ -24,12 +25,5 @@ public class UserService implements UserReader {
     @Transactional(readOnly = true)
     public Optional<User> find(long id) {
         return userRepository.find(id);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public Optional<Point> findPoint(long id) {
-        Optional<User> optionalUser = userRepository.find(id);
-        return optionalUser.map(User::getPoint);
     }
 }

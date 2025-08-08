@@ -22,4 +22,14 @@ public class LikeProductCountRepositoryImpl implements LikeProductCountRepositor
     public Optional<LikeProductCount> find(Long productId) {
         return likeProductCountJpaRepository.findByProductId(productId);
     }
+
+    @Override
+    public Integer increaseLikeCount(Long productId) {
+        return likeProductCountJpaRepository.increaseLikeCount(productId);
+    }
+
+    @Override
+    public Integer decreaseLikeCount(Long productId) {
+        return likeProductCountJpaRepository.decreaseLikeCount(productId);
+    }
 }

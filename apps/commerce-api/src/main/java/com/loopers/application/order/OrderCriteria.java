@@ -12,6 +12,7 @@ public final class OrderCriteria {
 
     public record Order(
             Long userId,
+            Long couponIssuanceId,
             List<OrderProduct> products
     ) {
         public OrderCommand.Create toOrderCommand() {

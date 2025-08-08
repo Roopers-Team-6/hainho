@@ -4,12 +4,13 @@ import com.loopers.application.user.UserFacade;
 import com.loopers.application.user.UserInfo;
 import com.loopers.interfaces.api.ApiResponse;
 import jakarta.validation.Valid;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
-@RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/v1")
+@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public class UserV1Controller implements UserV1ApiSpec {
     private final UserFacade userFacade;
 
@@ -31,27 +32,6 @@ public class UserV1Controller implements UserV1ApiSpec {
     ) {
         UserInfo userInfo = userFacade.getUser(userId);
         UserV1Dto.UserResponse response = UserV1Dto.UserResponse.from(userInfo);
-        return ApiResponse.success(response);
-    }
-
-    @Override
-    @GetMapping("/points")
-    public ApiResponse<UserV1Dto.PointResponse> getPoint(
-            @RequestHeader(value = "X-USER-ID") Long userId
-    ) {
-        Long point = userFacade.getPoint(userId);
-        UserV1Dto.PointResponse response = new UserV1Dto.PointResponse(point);
-        return ApiResponse.success(response);
-    }
-
-    @Override
-    @PostMapping("/points/charge")
-    public ApiResponse<UserV1Dto.PointChargeResponse> chargePoint(
-            @RequestHeader(value = "X-USER-ID") Long userId,
-            @RequestBody @Valid UserV1Dto.PointChargeRequest request
-    ) {
-        Long point = userFacade.chargePoint(userId, request.point());
-        UserV1Dto.PointChargeResponse response = new UserV1Dto.PointChargeResponse(point);
         return ApiResponse.success(response);
     }
 }
