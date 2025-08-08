@@ -4,7 +4,7 @@ public class ProductFixture {
     public static final Long VALID_BRAND_ID = 1L;
     public static final String VALID_NAME = "Sample Product";
     public static final long VALID_PRICE = 1000L;
-    public static final String VALID_DESCRIPTION = "This is a sample product description.";
+    public static final String VALID_DESCRIPTION = "This is a sample product description";
 
     public static Product createProduct(Long brandId, Long price, String name, String description) {
         return Product.create(brandId, price, name, description);
