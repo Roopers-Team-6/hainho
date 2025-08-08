@@ -10,13 +10,18 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class OrderResult {
 
-    public record Order(Long id, Long totalPrice, List<OrderProduct> products) {
-        public static Order from(OrderInfo.Create orderInfo) {
+    public record Order(
+            Long id,
+            Long totalPrice,
+            Long discountedPrice,
+            List<OrderProduct> products
+    ) {
+        public static Order from(OrderInfo.Create orderInfo, Long discountedPrice) {
             List<OrderProduct> products = orderInfo.getItems()
                     .stream()
                     .map(OrderProduct::from)
                     .toList();
-            return new Order(orderInfo.getId(), orderInfo.getTotalPrice(), products);
+            return new Order(orderInfo.getId(), orderInfo.getTotalPrice(), discountedPrice, products);
         }
 
         public record OrderProduct(Long productId, Long quantity, Long price) {

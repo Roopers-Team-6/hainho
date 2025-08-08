@@ -2,13 +2,13 @@ package com.loopers.domain.order;
 
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
@@ -29,14 +29,26 @@ public class OrderService {
                 .stream()
                 .map(item -> OrderItem.create(savedOrder.getId(), item.productId(), item.quantity(), item.price()))
                 .map(orderItemRepository::save)
-                .collect(Collectors.toList());
+                .toList();
 
-        return OrderInfo.Create.from(order, items);
+        return OrderInfo.Create.from(savedOrder, items);
     }
 
     private Long calculateTotalPrice(List<OrderCommand.Create.OrderItem> orderItems) {
         return orderItems.stream()
                 .mapToLong(item -> item.quantity() * item.price())
                 .sum();
+    }
+
+    @Transactional
+    public Long applyDiscount(Long orderId, Long discountingAmount) {
+        Order order = getOrder(orderId);
+        order.applyDiscount(discountingAmount);
+        return order.getDiscountedPrice().getValue();
+    }
+
+    private Order getOrder(Long orderId) {
+        return orderRepository.findById(orderId)
+                .orElseThrow(() -> new EntityNotFoundException("주문을 찾을 수 없습니다. ID: " + orderId));
     }
 }
