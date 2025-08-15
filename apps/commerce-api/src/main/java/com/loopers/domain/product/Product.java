@@ -8,12 +8,19 @@ import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Index;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "product")
+@Table(name = "product",
+        indexes = {
+                @Index(name = "idx_product_brand_id", columnList = "brand_id"),
+                @Index(name = "idx_product_price", columnList = "price"),
+                @Index(name = "idx_product_created_at", columnList = "created_at"),
+        }
+)
 @NoArgsConstructor(access = lombok.AccessLevel.PROTECTED)
 @Getter
 public class Product extends BaseEntity {
