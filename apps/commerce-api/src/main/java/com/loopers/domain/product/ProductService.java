@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Component
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public class ProductService {
+    private final ProductRedisRepository productRedisRepository;
     private final ProductStockRepository productStockRepository;
     private final ProductRepository productRepository;
 
@@ -35,13 +36,16 @@ public class ProductService {
 
     @Transactional(readOnly = true)
     public ProductInfo.Get getProductInfo(Long productId) {
-        Product product = getProduct(productId);
+        Product product = productRedisRepository.find(productId)
+                .orElse(getAndCacheProduct(productId));
         return ProductInfo.Get.from(product);
     }
 
-    private Product getProduct(Long productId) {
-        return productRepository.find(productId)
+    private Product getAndCacheProduct(Long productId) {
+        Product product = productRepository.find(productId)
                 .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "id에 해당하는 상품을 찾을 수 없습니다. productId: " + productId));
+        productRedisRepository.set(productId, product);
+        return product;
     }
 
     @Transactional(readOnly = true)
