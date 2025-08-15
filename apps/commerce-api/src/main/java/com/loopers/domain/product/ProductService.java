@@ -4,10 +4,10 @@ import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Component
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
@@ -45,7 +45,7 @@ public class ProductService {
     }
 
     @Transactional(readOnly = true)
-    public List<ProductInfo.GetPage> getProductPage(Long userId, Long brandId, String sort, Long page, Long size) {
-        return productRepository.getPage(userId, brandId, sort, page, size);
+    public Page<ProductInfo.GetPage> getProductPage(Long userId, Long brandId, Pageable pageable) {
+        return productRepository.getPage(userId, brandId, pageable);
     }
 }
