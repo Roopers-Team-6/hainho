@@ -1,7 +1,13 @@
-version: '3'
+version: '3.9'
 services:
   mysql:
     image: mysql:8.0
+    healthcheck:
+      test: [ "CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u$${MYSQL_USER} -p$${MYSQL_PASSWORD} --silent" ]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+      start_period: 20s
     ports:
       - "3306:3306"
     environment:
@@ -13,7 +19,15 @@ services:
       - MYSQL_COLLATE=utf8mb4_general_ci
     volumes:
       - mysql-8-data:/var/lib/mysql
-
+      - ../csv:/var/lib/mysql-files
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"   # vCPU 2
+          memory: 1G    # 1 GiB
+        reservations:
+          cpus: "1.00"
+          memory: 512M
 volumes:
   mysql-8-data:
 
