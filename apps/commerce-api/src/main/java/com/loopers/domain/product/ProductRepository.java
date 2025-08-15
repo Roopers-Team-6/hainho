@@ -1,6 +1,8 @@
 package com.loopers.domain.product;
 
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import java.util.Optional;
 
 public interface ProductRepository {
@@ -8,5 +10,5 @@ public interface ProductRepository {
 
     Optional<Product> find(Long productId);
 
-    List<ProductInfo.GetPage> getPage(Long userId, Long brandId, String sort, Long page, Long size);
+    Page<ProductInfo.GetPage> getPage(Long userId, Long brandId, Pageable pageable);
 }

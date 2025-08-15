@@ -1,6 +1,18 @@
+import org.gradle.jvm.tasks.Jar
+import org.springframework.boot.gradle.tasks.bundling.BootJar
+
+// commerce-api 모듈은 실행 가능한 Boot JAR만 생성
+tasks.named<Jar>("jar") {
+    enabled = false
+}
+tasks.named<BootJar>("bootJar") {
+    enabled = true
+}
+
 dependencies {
     // add-ons
     implementation(project(":modules:jpa"))
+    implementation(project(":modules:redis"))
     implementation(project(":supports:jackson"))
     implementation(project(":supports:logging"))
     implementation(project(":supports:monitoring"))
@@ -15,7 +27,10 @@ dependencies {
     annotationProcessor("jakarta.persistence:jakarta.persistence-api")
     annotationProcessor("jakarta.annotation:jakarta.annotation-api")
 
+    // redis
+    implementation("org.springframework.boot:spring-boot-starter-data-redis")
 
     // test-fixtures
     testImplementation(testFixtures(project(":modules:jpa")))
+    testImplementation(testFixtures(project(":modules:redis")))
 }

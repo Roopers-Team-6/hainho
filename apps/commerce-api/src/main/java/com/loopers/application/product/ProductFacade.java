@@ -8,6 +8,7 @@ import com.loopers.domain.product.ProductInfo;
 import com.loopers.domain.product.ProductService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -25,7 +26,7 @@ public class ProductFacade {
         return ProductResult.Get.Detail.from(productInfo, brandInfo, likeInfo);
     }
 
-    public ProductResult.Get.Page getProductPage(Long userId, Long brandId, String sort, Long page, Long size) {
-        return ProductResult.Get.Page.from(productService.getProductPage(userId, brandId, sort, page, size));
+    public ProductResult.Get.Page getProductPage(Long userId, Long brandId, Pageable pageable) {
+        return ProductResult.Get.Page.from(productService.getProductPage(userId, brandId, pageable));
     }
 }

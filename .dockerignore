@@ -1,0 +1,8 @@
+# 산출물/툴만 제외
+build/
+out/
+target/
+node_modules/
+**/.idea/
+**/.vscode/
+.git

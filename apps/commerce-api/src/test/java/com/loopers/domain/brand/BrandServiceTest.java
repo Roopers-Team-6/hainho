@@ -25,6 +25,9 @@ class BrandServiceTest {
     @Mock
     private BrandRepository brandRepository;
 
+    @Mock
+    private BrandRedisRepository brandRedisRepository;
+
 
     @Nested
     @DisplayName("getBrandInfo 메서드 호출할 때,")
@@ -35,6 +38,7 @@ class BrandServiceTest {
         void shouldThrowNotFoundExceptionWhenBrandIdDoesNotExist() {
             // arrange
             Long nonExistentBrandId = 999L;
+            when(brandRedisRepository.find(nonExistentBrandId)).thenReturn(Optional.empty());
             when(brandRepository.find(nonExistentBrandId)).thenReturn(Optional.empty());
 
             // act

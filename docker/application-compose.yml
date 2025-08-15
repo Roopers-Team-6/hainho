@@ -1,0 +1,34 @@
+version: "3.9"
+
+services:
+  app:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+      args:
+        APP_MODULE: ":apps:commerce-api"
+        APP_DIR: "apps/commerce-api"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis-master:
+        condition: service_healthy
+      redis-readonly:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+
+    environment:
+      - SPRING_PROFILES_ACTIVE=local
+      - DATASOURCE_MYSQL_JPA_MAIN_JDBC_URL=jdbc:mysql://mysql:3306/loopers?useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=utf8&useUnicode=true&serverTimezone=UTC
+      - DATASOURCE_MYSQL_JPA_MAIN_USERNAME=application
+      - DATASOURCE_MYSQL_JPA_MAIN_PASSWORD=application
+      - DATASOURCE_MYSQL_JPA_MAIN_INITIALIZATION_FAIL_TIMEOUT=0
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"   # t2.micro: 1 vCPU
+          memory: 1G    # t2.micro: 1 GiB
+        reservations:
+          cpus: "0.50"
+          memory: 512M

@@ -11,7 +11,48 @@ Loopers 에서 제공하는 스프링 자바 템플릿 프로젝트입니다.
 `local` 프로필로 동작할 수 있도록, 필요 인프라를 `docker-compose` 로 제공합니다.
 
 ```shell
-docker compose -f ./docker/infra-compose.yml up
+docker compose -p loopers -f ./docker/infra-compose.yml -f docker/application-compose.yml --compatibility up
+
+docker compose -p loopers -f ./docker/infra-compose.yml --compatibility up
+docker compose -p loopers -f ./docker/application-compose.yml --compatibility up
+
+
+```
+
+```shell
+docker exec -it $(docker ps -qf "ancestor=mysql:8.0") mysql -uroot -proot loopers
+
+LOAD DATA INFILE '/var/lib/mysql-files/brands.csv'
+INTO TABLE brand
+CHARACTER SET utf8mb4
+FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"'
+LINES TERMINATED BY '\n'
+IGNORE 1 LINES
+(id, name, description, created_at, updated_at);
+     
+LOAD DATA INFILE '/var/lib/mysql-files/products.csv'
+INTO TABLE product
+CHARACTER SET utf8mb4
+FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"'
+LINES TERMINATED BY '\n'
+IGNORE 1 LINES
+(brand_id, name, price, description, created_at, updated_at);
+
+LOAD DATA INFILE '/var/lib/mysql-files/product_stock.csv'
+INTO TABLE product_stock
+CHARACTER SET utf8mb4
+FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"'
+LINES TERMINATED BY '\n'
+IGNORE 1 LINES
+(product_id, quantity, created_at, updated_at);
+
+LOAD DATA INFILE '/var/lib/mysql-files/like_product_count.csv'
+INTO TABLE like_product_count
+CHARACTER SET utf8mb4
+FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"'
+LINES TERMINATED BY '\n'
+IGNORE 1 LINES
+(product_id, count, created_at, updated_at);
 ```
 
 ### Monitoring
