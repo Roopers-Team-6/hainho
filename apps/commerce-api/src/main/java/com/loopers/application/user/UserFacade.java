@@ -1,26 +1,31 @@
 package com.loopers.application.user;
 
+import com.loopers.domain.point.PointService;
 import com.loopers.domain.user.User;
 import com.loopers.domain.user.UserRepository;
 import com.loopers.domain.user.vo.LoginId;
-import com.loopers.domain.user.vo.Point;
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-@RequiredArgsConstructor
 @Component
+@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public class UserFacade {
     private final UserReader userReader;
     private final UserRepository userRepository;
+    private final PointService pointService;
 
     @Transactional
     public UserInfo registerUser(String loginId, String gender, String email, String birthDate) {
         checkDuplicateLoginId(loginId);
         User user = User.register(loginId, gender, email, birthDate);
-        return UserInfo.of(userRepository.save(user));
+        User savedUser = userRepository.save(user);
+        Long userId = savedUser.getId();
+        pointService.createPoint(userId);
+        return UserInfo.of(savedUser);
     }
 
     private void checkDuplicateLoginId(String loginId) {
@@ -33,29 +38,5 @@ public class UserFacade {
         User user = userReader.find(userId)
                 .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "id에 해당하는 User를 찾을 수 없습니다."));
         return UserInfo.of(user);
-    }
-
-    public Long getPoint(long userId) {
-        Point point = userReader.findPoint(userId)
-                .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "id에 해당하는 User를 찾을 수 없습니다."));
-        return point.getBalance();
-    }
-
-    @Transactional
-    public Long chargePoint(long userId, Long point) {
-        User user = userReader.find(userId)
-                .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "id에 해당하는 User를 찾을 수 없습니다."));
-        user.chargePoint(point);
-        return user.getPoint().getBalance();
-    }
-
-    @Transactional
-    public void usePoint(long userId, Long point) {
-        User user = userReader.find(userId)
-                .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "id에 해당하는 User를 찾을 수 없습니다."));
-        if (user.getPoint().getBalance() < point) {
-            throw new CoreException(ErrorType.BAD_REQUEST, "포인트가 부족합니다.");
-        }
-        user.usePoint(point);
     }
 }

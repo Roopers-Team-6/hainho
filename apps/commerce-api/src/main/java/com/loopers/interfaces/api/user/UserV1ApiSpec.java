@@ -31,33 +31,4 @@ public interface UserV1ApiSpec {
             )
             Long userId
     );
-
-    @Operation(
-            summary = "포인트 조회",
-            description = "유저의 포인트 정보를 조회합니다."
-    )
-    ApiResponse<UserV1Dto.PointResponse> getPoint(
-            @Schema(
-                    name = "X-USER-ID",
-                    description = "조회할 사용자의 ID"
-            )
-            Long userId
-    );
-
-    @Operation(
-            summary = "포인트 충전",
-            description = "유저의 포인트를 충전합니다."
-    )
-    ApiResponse<UserV1Dto.PointChargeResponse> chargePoint(
-            @Schema(
-                    name = "X-USER-ID",
-                    description = "조회할 사용자의 ID"
-            )
-            Long userId,
-            @Schema(
-                    name = "포인트 충전 요청",
-                    description = "포인트 충전에 필요한 정보를 담고 있는 요청 객체"
-            )
-            UserV1Dto.PointChargeRequest request
-    );
 }

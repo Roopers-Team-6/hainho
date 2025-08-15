@@ -6,6 +6,8 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public class OrderRepositoryImpl implements OrderRepository {
@@ -13,5 +15,9 @@ public class OrderRepositoryImpl implements OrderRepository {
 
     public Order save(Order order) {
         return orderJpaRepository.save(order);
+    }
+
+    public Optional<Order> findById(Long id) {
+        return orderJpaRepository.findById(id);
     }
 }

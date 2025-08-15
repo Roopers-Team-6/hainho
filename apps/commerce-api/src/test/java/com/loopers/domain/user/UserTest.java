@@ -44,16 +44,6 @@ class UserTest {
                         () -> assertThat(user.getBirthDate().getBirthDate()).isEqualTo(LocalDate.parse(validBirthDate))
                 );
             }
-
-            @Test
-            @DisplayName("Point가 0으로 초기화된다.")
-            void pointIsInitializedToZero() {
-                // act
-                User user = createUser(validUserId, validGender, validEmail, validBirthDate);
-
-                // assert
-                assertThat(user.getPoint().getBalance()).isZero();
-            }
         }
 
         @Nested
@@ -236,41 +226,6 @@ class UserTest {
                 // assert
                 assertThat(result.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
             }
-        }
-    }
-
-    @Nested
-    @DisplayName("포인트를 충전할 때,")
-    class ChargePoint {
-
-        @ParameterizedTest
-        @DisplayName("0 이하의 값으로 충전하면, BAD_REQUEST 예외가 발생한다.")
-        @ValueSource(longs = {0, -1, -1000})
-        void throwsBadRequestException_whenChargingWithZeroOrNegativeAmount(long amount) {
-            // arrange
-            User user = UserFixture.createUser();
-
-            // act
-            CoreException result = assertThrows(CoreException.class, () -> {
-                user.chargePoint(amount);
-            });
-
-            // assert
-            assertThat(result.getErrorType()).isEqualTo(ErrorType.BAD_REQUEST);
-        }
-
-        @ParameterizedTest
-        @DisplayName("충전 값이 0보다 크면, 포인트가 충전된다.")
-        @ValueSource(longs = {1, 1000})
-        void chargesPointSuccessfully_whenAmountIsPositive(long amount) {
-            // arrange
-            User user = UserFixture.createUser();
-
-            // act
-            user.chargePoint(amount);
-
-            // assert
-            assertThat(user.getPoint().getBalance()).isEqualTo(amount);
         }
     }
 }

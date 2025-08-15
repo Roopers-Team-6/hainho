@@ -19,17 +19,17 @@ public class ProductService {
     public void deductStock(ProductStockCommand.Deduct command) {
         command.products()
                 .stream()
-                .forEach(product -> deductStock(product));
+                .forEach(this::deductStock);
     }
 
     private ProductStock deductStock(ProductStockCommand.Deduct.Product product) {
-        ProductStock productStock = getProductStock(product.productId());
+        ProductStock productStock = getProductStockWithLock(product.productId());
         productStock.deduct(product.quantityToDeduct());
         return productStock;
     }
 
-    private ProductStock getProductStock(Long productId) {
-        return productStockRepository.findByProductId(productId)
+    private ProductStock getProductStockWithLock(Long productId) {
+        return productStockRepository.findByProductIdWithLock(productId)
                 .orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND, "상품 재고 데이터가 존재하지 않습니다. productId: " + productId));
     }
 
