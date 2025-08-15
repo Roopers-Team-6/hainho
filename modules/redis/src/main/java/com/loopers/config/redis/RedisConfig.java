@@ -1,100 +1,73 @@
 package com.loopers.config.redis;
 
-
-import io.lettuce.core.ReadFrom;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
-import org.springframework.data.redis.connection.RedisStaticMasterReplicaConfiguration;
-import org.springframework.data.redis.connection.lettuce.LettuceClientConfiguration;
+import org.springframework.data.redis.cache.RedisCacheConfiguration;
+import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
+import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
-import java.util.List;
-import java.util.function.Consumer;
+import java.time.Duration;
 
 @Configuration
-@EnableConfigurationProperties(RedisProperties.class)
 public class RedisConfig {
-    public static final String REDIS_TEMPLATE_MASTER = "redisTemplateMaster";
-    private static final String CONNECTION_MASTER = "redisConnectionMaster";
-    private final RedisProperties redisProperties;
 
-    public RedisConfig(RedisProperties redisProperties) {
-        this.redisProperties = redisProperties;
-    }
-
-    @Primary
     @Bean
-    public LettuceConnectionFactory defaultRedisConnectionFactory() {
-        int database = redisProperties.database();
-        RedisNodeInfo master = redisProperties.master();
-        List<RedisNodeInfo> replicas = redisProperties.replicas();
-        return lettuceConnectionFactory(
-                database, master, replicas,
-                b -> b.readFrom(ReadFrom.REPLICA_PREFERRED)
+    public ObjectMapper redisObjectMapper() {
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+        objectMapper.activateDefaultTyping(
+                LaissezFaireSubTypeValidator.instance,
+                ObjectMapper.DefaultTyping.NON_FINAL,
+                JsonTypeInfo.As.PROPERTY
         );
+        return objectMapper;
     }
 
-    @Qualifier(CONNECTION_MASTER)
     @Bean
-    public LettuceConnectionFactory masterRedisConnectionFactory() {
-        int database = redisProperties.database();
-        RedisNodeInfo master = redisProperties.master();
-        List<RedisNodeInfo> replicas = redisProperties.replicas();
-        return lettuceConnectionFactory(
-                database, master, replicas,
-                b -> b.readFrom(ReadFrom.MASTER)
-        );
+    public GenericJackson2JsonRedisSerializer redisValueSerializer(ObjectMapper redisObjectMapper) {
+        return new GenericJackson2JsonRedisSerializer(redisObjectMapper);
     }
 
-    @Primary
     @Bean
-    public RedisTemplate<String, String> defaultRedisTemplate(LettuceConnectionFactory lettuceConnectionFactory) {
-        RedisTemplate<String, String> redisTemplate = new RedisTemplate<>();
-        return defaultRedisTemplate(redisTemplate, lettuceConnectionFactory);
-    }
-
-    @Qualifier(REDIS_TEMPLATE_MASTER)
-    @Bean
-    public RedisTemplate<String, String> masterRedisTemplate(
-            @Qualifier(CONNECTION_MASTER) LettuceConnectionFactory lettuceConnectionFactory
+    public RedisTemplate<String, Object> redisTemplate(
+            LettuceConnectionFactory connectionFactory,
+            GenericJackson2JsonRedisSerializer redisValueSerializer
     ) {
-        RedisTemplate<String, String> redisTemplate = new RedisTemplate<>();
-        return defaultRedisTemplate(redisTemplate, lettuceConnectionFactory);
-    }
-
-
-    private LettuceConnectionFactory lettuceConnectionFactory(
-            int database,
-            RedisNodeInfo master,
-            List<RedisNodeInfo> replicas,
-            Consumer<LettuceClientConfiguration.LettuceClientConfigurationBuilder> customizer
-    ) {
-        LettuceClientConfiguration.LettuceClientConfigurationBuilder builder = LettuceClientConfiguration.builder();
-        if (customizer != null) customizer.accept(builder);
-        LettuceClientConfiguration clientConfig = builder.build();
-        RedisStaticMasterReplicaConfiguration masterReplicaConfig = new RedisStaticMasterReplicaConfiguration(master.host(), master.port());
-        masterReplicaConfig.setDatabase(database);
-        for (RedisNodeInfo r : replicas) {
-            masterReplicaConfig.addNode(r.host(), r.port());
-        }
-        return new LettuceConnectionFactory(masterReplicaConfig, clientConfig);
-    }
-
-    private <K, V> RedisTemplate<K, V> defaultRedisTemplate(
-            RedisTemplate<K, V> template,
-            LettuceConnectionFactory connectionFactory
-    ) {
-        StringRedisSerializer s = new StringRedisSerializer();
-        template.setKeySerializer(s);
-        template.setValueSerializer(s);
-        template.setHashKeySerializer(s);
-        template.setHashValueSerializer(s);
+        RedisTemplate<String, Object> template = new RedisTemplate<>();
         template.setConnectionFactory(connectionFactory);
+        template.setKeySerializer(new StringRedisSerializer());
+        template.setValueSerializer(redisValueSerializer);
+        template.setHashKeySerializer(new StringRedisSerializer());
+        template.setHashValueSerializer(redisValueSerializer);
         return template;
+    }
+
+    @Primary
+    @Bean
+    public CacheManager cacheManager(
+            LettuceConnectionFactory connectionFactory,
+            GenericJackson2JsonRedisSerializer redisValueSerializer
+    ) {
+        RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig()
+                .entryTtl(Duration.ofMinutes(5))
+                .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
+                .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(redisValueSerializer))
+                .disableCachingNullValues();
+
+        return RedisCacheManager.builder(connectionFactory)
+                .cacheDefaults(config)
+//                .withCacheConfiguration("products", config.entryTtl(PRODUCTS_CACHE_TTL))
+//                .withCacheConfiguration("brands", config.entryTtl(BRANDS_CACHE_TTL))
+                .build();
     }
 }

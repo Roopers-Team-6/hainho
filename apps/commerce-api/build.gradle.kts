@@ -27,6 +27,8 @@ dependencies {
     annotationProcessor("jakarta.persistence:jakarta.persistence-api")
     annotationProcessor("jakarta.annotation:jakarta.annotation-api")
 
+    // redis
+    implementation("org.springframework.boot:spring-boot-starter-data-redis")
 
     // test-fixtures
     testImplementation(testFixtures(project(":modules:jpa")))
