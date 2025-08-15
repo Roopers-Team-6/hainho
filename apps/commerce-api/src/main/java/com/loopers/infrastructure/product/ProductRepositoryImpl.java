@@ -26,6 +26,7 @@ import static com.loopers.domain.product.QProduct.product;
 public class ProductRepositoryImpl implements ProductRepository {
     private final ProductJpaRepository productJpaRepository;
     private final JPAQueryFactory queryFactory;
+    private final ProductPageTotalCountRedisTemplate productPageTotalCountRedisTemplate;
 
     @Override
     public Optional<Product> find(Long id) {
@@ -85,15 +86,20 @@ public class ProductRepositoryImpl implements ProductRepository {
                 .limit(pageable.getPageSize())
                 .fetch();
 
+        Long count = productPageTotalCountRedisTemplate.find(brandId)
+                .orElseGet(() -> getAndCachePageTotalCount(brandId));
+
+        return new PageImpl<>(fetched, pageable, count);
+    }
+
+    private Long getAndCachePageTotalCount(Long brandId) {
         JPAQuery<Long> countQuery = queryFactory.select(product.count())
                 .from(product);
-
         if (brandId != null) {
             countQuery.where(product.brandId.eq(brandId));
         }
-
-        Long count = countQuery.fetchCount();
-
-        return new PageImpl<>(fetched, pageable, count);
+        Long totalCount = countQuery.fetchCount();
+        productPageTotalCountRedisTemplate.set(brandId, totalCount);
+        return totalCount;
     }
 }
