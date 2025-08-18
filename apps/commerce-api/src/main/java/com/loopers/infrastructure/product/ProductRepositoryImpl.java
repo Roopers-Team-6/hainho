@@ -1,10 +1,16 @@
 package com.loopers.infrastructure.product;
 
 import com.loopers.domain.product.*;
+import com.querydsl.core.types.Expression;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -20,6 +26,7 @@ import static com.loopers.domain.product.QProduct.product;
 public class ProductRepositoryImpl implements ProductRepository {
     private final ProductJpaRepository productJpaRepository;
     private final JPAQueryFactory queryFactory;
+    private final ProductPageTotalCountRedisTemplate productPageTotalCountRedisTemplate;
 
     @Override
     public Optional<Product> find(Long id) {
@@ -32,7 +39,11 @@ public class ProductRepositoryImpl implements ProductRepository {
     }
 
     @Override
-    public List<ProductInfo.GetPage> getPage(Long userId, Long brandId, String sort, Long page, Long size) {
+    public Page<ProductInfo.GetPage> getPage(Long userId, Long brandId, Pageable pageable) {
+        Expression<Boolean> isLikedExpression =
+                (userId != null) ? likeProduct.id.isNotNull()
+                        : Expressions.constant(false);
+
         JPAQuery<ProductInfo.GetPage> query = queryFactory.select(
                         new QProductInfo_GetPage(
                                 product.id,
@@ -44,26 +55,51 @@ public class ProductRepositoryImpl implements ProductRepository {
                                 ),
                                 new QProductInfo_GetPage_Like(
                                         likeProductCount.countValue.value,
-                                        likeProduct.id.isNotNull()
+                                        isLikedExpression
                                 )
                         ))
                 .from(product)
                 .leftJoin(brand).on(brand.id.eq(product.brandId))
-                .leftJoin(likeProduct).on(likeProduct.productId.eq(product.id).and(likeProduct.userId.eq(userId)))
-                .leftJoin(likeProductCount).on(likeProductCount.productId.eq(product.id))
-                .where(product.brandId.eq(brandId));
+                .leftJoin(likeProductCount).on(likeProductCount.productId.eq(product.id));
 
-        switch (sort) {
+        if (brandId != null) {
+            query.where(product.brandId.eq(brandId));
+        }
+
+        if (userId != null) {
+            query.leftJoin(likeProduct)
+                    .on(likeProduct.productId.eq(product.id)
+                            .and(likeProduct.userId.eq(userId)));
+        }
+
+        switch (pageable.getSort().toList().stream()
+                .map(Sort.Order::getProperty)
+                .findFirst()
+                .orElse("default")) {
             case "latest" -> query.orderBy(product.createdAt.desc());
-            case "priceAsc" -> query.orderBy(product.price.value.asc());
-            case "likes_desc" -> query.orderBy(likeProductCount.countValue.value.desc());
+            case "price_asc" -> query.orderBy(product.price.value.asc());
+            case "like_count_desc" -> query.orderBy(likeProductCount.countValue.value.desc());
             default -> query.orderBy(product.id.asc());
         }
 
-        List<ProductInfo.GetPage> fetched = query.offset(page * size)
-                .limit(size)
+        List<ProductInfo.GetPage> fetched = query.offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
                 .fetch();
 
-        return fetched;
+        Long count = productPageTotalCountRedisTemplate.find(brandId)
+                .orElseGet(() -> getAndCachePageTotalCount(brandId));
+
+        return new PageImpl<>(fetched, pageable, count);
+    }
+
+    private Long getAndCachePageTotalCount(Long brandId) {
+        JPAQuery<Long> countQuery = queryFactory.select(product.count())
+                .from(product);
+        if (brandId != null) {
+            countQuery.where(product.brandId.eq(brandId));
+        }
+        Long totalCount = countQuery.fetchCount();
+        productPageTotalCountRedisTemplate.set(brandId, totalCount);
+        return totalCount;
     }
 }

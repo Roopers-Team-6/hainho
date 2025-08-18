@@ -1,0 +1,10 @@
+version: "3.9"
+services:
+  k6:
+    image: grafana/k6:latest
+    #    extra_hosts:
+    #      - "host.docker.internal:host-gateway"
+    volumes:
+      - ../scripts:/scripts:ro
+    entrypoint: [ "sh","-c" ]
+    command: [ "sleep infinity" ]

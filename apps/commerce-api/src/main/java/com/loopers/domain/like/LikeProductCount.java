@@ -6,12 +6,17 @@ import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Index;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "like_product_count")
+@Table(name = "like_product_count",
+        indexes = {
+                @Index(name = "idx_like_product_count_product_id", columnList = "product_id"),
+        }
+)
 @NoArgsConstructor(access = lombok.AccessLevel.PROTECTED)
 @Getter
 public class LikeProductCount extends BaseEntity {

@@ -60,14 +60,13 @@ public final class ProductResult {
         }
 
         public record Page(
-                List<Product> products
+                org.springframework.data.domain.Page<Product> products
         ) {
-            public static Page from(List<ProductInfo.GetPage> products) {
-                return new Page(
-                        products.stream()
-                                .map(Product::from)
-                                .toList()
-                );
+            public static Page from(org.springframework.data.domain.Page<ProductInfo.GetPage> productInfoPage) {
+                List<Product> productList = productInfoPage.getContent().stream()
+                        .map(Product::from)
+                        .toList();
+                return new Page(new org.springframework.data.domain.PageImpl<>(productList, productInfoPage.getPageable(), productInfoPage.getTotalElements()));
             }
 
             public record Product(
