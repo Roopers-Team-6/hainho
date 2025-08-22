@@ -24,7 +24,7 @@ API 는 아래와 같이 주어지니, 커머스 서비스와 동시에 실행�
 
 ```http request
 ### 결제 요청
-POST {{pg-simulator}}/api/v1/payments
+POST {{pg-simulator}}/api/v1/gets
 X-USER-ID: 135135
 Content-Type: application/json
 
@@ -37,11 +37,11 @@ Content-Type: application/json
 }
 
 ### 결제 정보 확인
-GET {{pg-simulator}}/api/v1/payments/20250816:TR:9577c5
+GET {{pg-simulator}}/api/v1/gets/20250816:TR:9577c5
 X-USER-ID: 135135
 
 ### 주문에 엮인 결제 정보 조회
-GET {{pg-simulator}}/api/v1/payments?orderId=1351039135
+GET {{pg-simulator}}/api/v1/gets?orderId=1351039135
 X-USER-ID: 135135
 
 ```
