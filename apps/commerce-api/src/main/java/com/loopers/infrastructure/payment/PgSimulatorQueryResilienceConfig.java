@@ -50,17 +50,22 @@ public class PgSimulatorQueryResilienceConfig implements ResiliencePolicyConfigu
 
     private CircuitBreakerConfig circuitBreakerConfig() {
         return CircuitBreakerConfig.custom()
-                .slidingWindowType(CircuitBreakerConfig.SlidingWindowType.COUNT_BASED)
-                .slidingWindowSize(20)
-                .minimumNumberOfCalls(10)
+                .slidingWindowType(CircuitBreakerConfig.SlidingWindowType.TIME_BASED)
+                .slidingWindowSize(10)
+                .minimumNumberOfCalls(4)
                 .failureRateThreshold(50f)
                 .slowCallRateThreshold(50f)
-                .slowCallDurationThreshold(Duration.ofSeconds(2))
-                .waitDurationInOpenState(Duration.ofSeconds(30))
-                .recordExceptions(feign.RetryableException.class,
-                        feign.FeignException.InternalServerError.class,
-                        java.net.SocketTimeoutException.class)
-                .ignoreExceptions(feign.FeignException.BadRequest.class,
+                .slowCallDurationThreshold(Duration.ofMillis(100))
+                .waitDurationInOpenState(Duration.ofMillis(2000))
+                .automaticTransitionFromOpenToHalfOpenEnabled(true)
+                .permittedNumberOfCallsInHalfOpenState(2)
+                .maxWaitDurationInHalfOpenState(Duration.ofMillis(3000))
+                .recordExceptions(
+                        feign.RetryableException.class,
+                        feign.FeignException.InternalServerError.class
+                )
+                .ignoreExceptions(
+                        feign.FeignException.BadRequest.class,
                         feign.FeignException.Unauthorized.class
                 )
                 .build();

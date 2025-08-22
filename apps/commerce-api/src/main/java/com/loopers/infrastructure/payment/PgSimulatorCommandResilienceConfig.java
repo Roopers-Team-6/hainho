@@ -70,17 +70,22 @@ public class PgSimulatorCommandResilienceConfig implements ResiliencePolicyConfi
 
     private CircuitBreakerConfig circuitBreakerConfig() {
         return CircuitBreakerConfig.custom()
-                .slidingWindowType(CircuitBreakerConfig.SlidingWindowType.COUNT_BASED)
-                .slidingWindowSize(20)
+                .slidingWindowType(CircuitBreakerConfig.SlidingWindowType.TIME_BASED)
+                .slidingWindowSize(60)
                 .minimumNumberOfCalls(10)
                 .failureRateThreshold(50f)
                 .slowCallRateThreshold(50f)
-                .slowCallDurationThreshold(Duration.ofSeconds(2))
-                .waitDurationInOpenState(Duration.ofSeconds(30))
-                .recordExceptions(feign.RetryableException.class,
-                        feign.FeignException.InternalServerError.class,
-                        java.net.SocketTimeoutException.class)
-                .ignoreExceptions(feign.FeignException.BadRequest.class,
+                .slowCallDurationThreshold(Duration.ofMillis(500))
+                .waitDurationInOpenState(Duration.ofMillis(10000))
+                .automaticTransitionFromOpenToHalfOpenEnabled(true)
+                .permittedNumberOfCallsInHalfOpenState(5)
+                .maxWaitDurationInHalfOpenState(Duration.ofMillis(10000))
+                .recordExceptions(
+                        feign.RetryableException.class,
+                        feign.FeignException.InternalServerError.class
+                )
+                .ignoreExceptions(
+                        feign.FeignException.BadRequest.class,
                         feign.FeignException.Unauthorized.class
                 )
                 .build();
