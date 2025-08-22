@@ -40,6 +40,11 @@ spring:
     activate:
       on-profile: local, test
 
+datasource:
+  mysql-jpa:
+    main:
+      jdbc-url: jdbc:mysql://localhost:3306/paymentgateway
+
 server:
   port: 8082
 
