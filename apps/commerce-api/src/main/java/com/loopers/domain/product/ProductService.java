@@ -52,4 +52,17 @@ public class ProductService {
     public Page<ProductInfo.GetPage> getProductPage(Long userId, Long brandId, Pageable pageable) {
         return productRepository.getPage(userId, brandId, pageable);
     }
+
+    @Transactional
+    public void refundStock(ProductStockCommand.Refund command) {
+        command.products()
+                .stream()
+                .forEach(this::refundStock);
+    }
+
+    private void refundStock(ProductStockCommand.Refund.Product product) {
+        ProductStock productStock = getProductStockWithLock(product.productId());
+        productStock.refund(product.quantityToRefund());
+        productStockRepository.save(productStock);
+    }
 }

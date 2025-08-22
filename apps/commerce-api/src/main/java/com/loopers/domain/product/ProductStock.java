@@ -34,4 +34,8 @@ public class ProductStock extends BaseEntity {
     public void deduct(Long quantityToDeduct) {
         this.quantity = this.quantity.deduct(quantityToDeduct);
     }
+
+    public void refund(Long quantityToRefund) {
+        this.quantity = this.quantity.refund(quantityToRefund);
+    }
 }

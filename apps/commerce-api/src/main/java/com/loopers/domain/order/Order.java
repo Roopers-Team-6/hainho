@@ -5,9 +5,7 @@ import com.loopers.domain.order.vo.DiscountedPrice;
 import com.loopers.domain.order.vo.TotalPrice;
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
-import jakarta.persistence.Embedded;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -21,6 +19,10 @@ public class Order extends BaseEntity {
     private TotalPrice totalPrice;
     @Embedded
     private DiscountedPrice discountedPrice;
+    @Enumerated
+    private OrderStatus status;
+    @Version
+    private Long version;
 
     private Order(Long userId, TotalPrice totalPrice) {
         if (userId == null) {
@@ -28,6 +30,7 @@ public class Order extends BaseEntity {
         }
         this.userId = userId;
         this.totalPrice = totalPrice;
+        this.status = OrderStatus.PENDING;
     }
 
     public static Order create(Long userId, Long totalPrice) {
@@ -43,5 +46,33 @@ public class Order extends BaseEntity {
         }
         Long discountedPriceValue = totalPrice.getValue() - discountingAmount;
         this.discountedPrice = DiscountedPrice.of(discountedPriceValue);
+    }
+
+    public void markProcessing() {
+        if (!status.isProcessable()) {
+            throw new IllegalStateException("주문이 처리 가능한 상태가 아닙니다. 현재 상태: " + status);
+        }
+        this.status = OrderStatus.PROCESSING;
+    }
+
+    public void markCompleted() {
+        if (!status.isCompletable()) {
+            throw new IllegalStateException("주문이 완료 가능한 상태가 아닙니다. 현재 상태: " + status);
+        }
+        this.status = OrderStatus.COMPLETED;
+    }
+
+    public void markCancelled() {
+        if (!status.isCancellable()) {
+            throw new IllegalStateException("주문이 취소 가능한 상태가 아닙니다. 현재 상태: " + status);
+        }
+        this.status = OrderStatus.CANCELLED;
+    }
+
+    public void markPending() {
+        if (!status.isPendable()) {
+            throw new IllegalStateException("주문이 대기 가능한 상태가 아닙니다. 현재 상태: " + status);
+        }
+        this.status = OrderStatus.PENDING;
     }
 }

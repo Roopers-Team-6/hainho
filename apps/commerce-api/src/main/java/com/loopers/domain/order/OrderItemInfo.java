@@ -30,4 +30,20 @@ public final class OrderItemInfo {
             );
         }
     }
+
+    public record Detail(
+            Long id,
+            Long productId,
+            Long quantity,
+            Long price
+    ) {
+        public static Detail from(OrderItem orderItem) {
+            return new Detail(
+                    orderItem.getId(),
+                    orderItem.getProductId(),
+                    orderItem.getQuantity().getValue(),
+                    orderItem.getPrice().getValue()
+            );
+        }
+    }
 }
