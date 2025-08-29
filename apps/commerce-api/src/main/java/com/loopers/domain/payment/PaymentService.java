@@ -47,7 +47,7 @@ public class PaymentService {
             payment.markRequested();
         } else if (command.resultStatus().equals("FAILED")) {
             payment.markFailed();
-            PgPaymentFailed event = PgPaymentFailed.of(payment.getOrderId(), payment.getId());
+            PaymentFailed event = PaymentFailed.of(payment.getOrderId(), payment.getId());
             paymentEventPublisher.publish(event);
         } else {
             throw new IllegalArgumentException("결제 결과 상태가 유효하지 않습니다: " + command.resultStatus());
@@ -69,6 +69,8 @@ public class PaymentService {
     private void markFinalStatus(Payment payment, PaymentCommand.MarkFinalResult command) {
         if (command.resultStatus().equals("SUCCESS")) {
             payment.markCompleted(command.transactionKey());
+            PaymentSucceed event = PaymentSucceed.from(payment);
+            paymentEventPublisher.publish(event);
         } else if (command.resultStatus().equals("FAILED")) {
             payment.markFailed();
         } else {
@@ -79,6 +81,12 @@ public class PaymentService {
     public void verifyPaymentResult(String orderId, String transactionKey, String status) {
         PaymentQuery.Card.Payment command = new PaymentQuery.Card.Payment(transactionKey);
         PaymentInfo.Card.Get paymentInfo = paymentGateway.findCardPaymentResult(command);
+        validatePaymentInfo(orderId, status, paymentInfo);
+        PgPaymentCompleted event = PgPaymentCompleted.of(orderId, transactionKey, status);
+        paymentEventPublisher.publish(event);
+    }
+
+    private void validatePaymentInfo(String orderId, String status, PaymentInfo.Card.Get paymentInfo) {
         if (!paymentInfo.status().equals(status)) {
             throw new IllegalStateException("결제 상태가 일치하지 않습니다. 요청된 상태: " + status + ", 실제 상태: " + paymentInfo.status());
         }

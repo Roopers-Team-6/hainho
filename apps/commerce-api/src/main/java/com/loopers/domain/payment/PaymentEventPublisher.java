@@ -5,5 +5,9 @@ public interface PaymentEventPublisher {
 
     void publish(PgPaymentRequested event);
 
-    void publish(PgPaymentFailed event);
+    void publish(PaymentFailed event);
+
+    void publish(PgPaymentCompleted events);
+
+    void publish(PaymentSucceed events);
 }

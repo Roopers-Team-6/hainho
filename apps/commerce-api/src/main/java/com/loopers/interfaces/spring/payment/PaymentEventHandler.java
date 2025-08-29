@@ -1,9 +1,6 @@
 package com.loopers.interfaces.spring.payment;
 
-import com.loopers.domain.payment.CardPaymentCreated;
-import com.loopers.domain.payment.PaymentCommand;
-import com.loopers.domain.payment.PaymentService;
-import com.loopers.domain.payment.PgPaymentRequested;
+import com.loopers.domain.payment.*;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.event.EventListener;
@@ -38,5 +35,15 @@ public class PaymentEventHandler {
                 event.result()
         );
         paymentService.markResult(command);
+    }
+
+    @Async
+    @EventListener
+    public void handle(PgPaymentCompleted event) {
+        PaymentCommand.MarkFinalResult command = new PaymentCommand.MarkFinalResult(
+                event.transactionKey(),
+                event.status()
+        );
+        paymentService.markFinalResult(command);
     }
 }

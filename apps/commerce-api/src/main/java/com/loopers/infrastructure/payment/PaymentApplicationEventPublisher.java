@@ -1,9 +1,6 @@
 package com.loopers.infrastructure.payment;
 
-import com.loopers.domain.payment.CardPaymentCreated;
-import com.loopers.domain.payment.PaymentEventPublisher;
-import com.loopers.domain.payment.PgPaymentFailed;
-import com.loopers.domain.payment.PgPaymentRequested;
+import com.loopers.domain.payment.*;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
@@ -25,7 +22,17 @@ public class PaymentApplicationEventPublisher implements PaymentEventPublisher {
     }
 
     @Override
-    public void publish(PgPaymentFailed event) {
+    public void publish(PaymentFailed event) {
+        applicationEventPublisher.publishEvent(event);
+    }
+
+    @Override
+    public void publish(PgPaymentCompleted event) {
+        applicationEventPublisher.publishEvent(event);
+    }
+
+    @Override
+    public void publish(PaymentSucceed event) {
         applicationEventPublisher.publishEvent(event);
     }
 }

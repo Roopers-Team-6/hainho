@@ -94,7 +94,7 @@ class PaymentServiceTest {
 
             when(paymentRepository.findByIdWithLock(1L)).thenReturn(Optional.of(payment));
 
-            PgPaymentFailed event = PgPaymentFailed.of(payment.getOrderId(), payment.getId());
+            PaymentFailed event = PaymentFailed.of(payment.getOrderId(), payment.getId());
             doNothing().when(paymentEventPublisher).publish(event);
 
             // Act
@@ -102,7 +102,7 @@ class PaymentServiceTest {
 
             // Assert
             verify(payment).markFailed();
-            verify(paymentEventPublisher, times(1)).publish(any(PgPaymentFailed.class));
+            verify(paymentEventPublisher, times(1)).publish(any(PaymentFailed.class));
         }
 
         @Test

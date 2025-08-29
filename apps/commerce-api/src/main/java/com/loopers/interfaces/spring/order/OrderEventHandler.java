@@ -2,7 +2,8 @@ package com.loopers.interfaces.spring.order;
 
 import com.loopers.domain.coupon.CouponUsed;
 import com.loopers.domain.order.OrderService;
-import com.loopers.domain.payment.PgPaymentFailed;
+import com.loopers.domain.payment.PaymentFailed;
+import com.loopers.domain.payment.PaymentSucceed;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
@@ -22,7 +23,13 @@ public class OrderEventHandler {
 
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    public void handle(PgPaymentFailed event) {
+    public void handle(PaymentFailed event) {
         orderService.markPending(event.orderId());
+    }
+
+    @Async
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    public void handle(PaymentSucceed event) {
+        orderService.markCompleted(event.orderId());
     }
 }

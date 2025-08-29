@@ -31,7 +31,7 @@ public class PaymentV1Dto {
         }
 
         public record Response(
-                Long orderId
+                String orderId
         ) {
         }
     }
