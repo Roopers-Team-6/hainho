@@ -8,7 +8,9 @@ public class PaymentCommand {
     public record Create(
             Long orderId,
             String paymentMethod,
-            Long amount
+            Long amount,
+            String cardType,
+            String cardNumber
     ) {
     }
 

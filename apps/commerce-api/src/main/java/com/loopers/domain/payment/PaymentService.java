@@ -15,10 +15,16 @@ import java.util.List;
 public class PaymentService {
     private final PaymentRepository paymentRepository;
     private final PaymentGateway paymentGateway;
+    private final PaymentEventPublisher paymentEventPublisher;
 
     @Transactional
     public PaymentInfo.Get createPayment(PaymentCommand.Create command) {
         Payment payment = Payment.create(command);
+        paymentRepository.save(payment);
+
+        CardPaymentCreated event = CardPaymentCreated.from(payment, command.cardType(), command.cardNumber());
+        paymentEventPublisher.publish(event);
+
         return PaymentInfo.Get.from(payment);
     }
 
@@ -41,6 +47,8 @@ public class PaymentService {
             payment.markRequested();
         } else if (command.resultStatus().equals("FAILED")) {
             payment.markFailed();
+            PgPaymentFailed event = PgPaymentFailed.of(payment.getOrderId(), payment.getId());
+            paymentEventPublisher.publish(event);
         } else {
             throw new IllegalArgumentException("결제 결과 상태가 유효하지 않습니다: " + command.resultStatus());
         }
@@ -80,7 +88,10 @@ public class PaymentService {
     }
 
     public PaymentInfo.Card.Result requestCardPayment(PaymentCommand.Card.Payment command) {
-        return paymentGateway.requestCardPayment(command);
+        PaymentInfo.Card.Result result = paymentGateway.requestCardPayment(command);
+        PgPaymentRequested event = PgPaymentRequested.of(command.orderId(), result.transactionKey(), result.status());
+        paymentEventPublisher.publish(event);
+        return result;
     }
 
     public PaymentInfo.Card.Get getCardPayment(PaymentQuery.Card.Payment query) {

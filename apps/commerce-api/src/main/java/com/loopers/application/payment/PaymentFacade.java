@@ -7,8 +7,6 @@ import com.loopers.domain.payment.PaymentInfo;
 import com.loopers.domain.payment.PaymentService;
 import com.loopers.domain.point.PointService;
 import com.loopers.interfaces.api.payment.PaymentV1Dto;
-import com.loopers.support.error.CoreException;
-import com.loopers.support.error.ErrorType;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -24,19 +22,8 @@ public class PaymentFacade {
     public PaymentV1Dto.CreateWithCard.Response requestCardPayment(PaymentCriteria.Create.Card criteria) {
         OrderInfo.Detail orderInfo = orderService.verifyPayableAndMarkProcessing(criteria.orderId(), criteria.userId());
 
-        PaymentCommand.Create createCommand = new PaymentCommand.Create(criteria.orderId(), "card", orderInfo.discountedPrice());
+        PaymentCommand.Create createCommand = new PaymentCommand.Create(criteria.orderId(), "card", orderInfo.discountedPrice(), criteria.cardType(), criteria.cardNo());
         PaymentInfo.Get paymentInfo = paymentService.createPayment(createCommand);
-
-        PaymentCommand.Card.Payment command = new PaymentCommand.Card.Payment(criteria.orderId(), criteria.cardType(), criteria.cardNo(), orderInfo.discountedPrice());
-        PaymentInfo.Card.Result requestResult = paymentService.requestCardPayment(command);
-
-        PaymentCommand.MarkResult markCommand = new PaymentCommand.MarkResult(paymentInfo.id(), requestResult.transactionKey(), requestResult.status());
-        paymentService.markResult(markCommand);
-
-        if (requestResult.status().equals("FAILED")) {
-            orderService.markPending(criteria.orderId());
-            throw new CoreException(ErrorType.INTERNAL_ERROR, "결제 요청에 실패했습니다. 결제 상태: " + requestResult.status());
-        }
 
         return new PaymentV1Dto.CreateWithCard.Response(orderInfo.discountedPrice());
     }

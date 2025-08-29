@@ -28,23 +28,37 @@ class PaymentServiceTest {
     @Mock
     private PaymentRepository paymentRepository;
 
+    @Mock
+    private PaymentEventPublisher paymentEventPublisher;
+
     @Nested
     @DisplayName("createPayment 메서드는")
     class CreatePaymentTests {
 
         @Test
-        @DisplayName("유효한 PaymentCommand를 받으면 PaymentInfo를 반환한다.")
+        @DisplayName("유효한 PaymentCommand를 받으면 CardPaymentCreated 이벤트를 발행하고, PaymentInfo를 반환한다.")
         void createPaymentWithValidCommand() {
             // Arrange
-            PaymentCommand.Create command = new PaymentCommand.Create(1L, "card", 1000L);
+            PaymentCommand.Create command = new PaymentCommand.Create(1L, "card", 1000L, "VISA", "1234-5678-9012-3456");
             Payment payment = Payment.create(command);
             PaymentInfo.Get expectedInfo = PaymentInfo.Get.from(payment);
+            CardPaymentCreated expectedEvent = CardPaymentCreated.from(payment, command.cardType(), command.cardNumber());
+
+            when(paymentRepository.save(argThat(
+                    p -> p.getOrderId().equals(command.orderId()) &&
+                            p.getPaymentMethod() == PaymentMethod.CARD &&
+                            p.getAmount().equals(PaymentAmount.of(command.amount())) &&
+                            p.getStatus() == PaymentStatus.PENDING
+            ))).thenReturn(payment);
+
+            doNothing().when(paymentEventPublisher).publish(expectedEvent);
 
             // Act
             PaymentInfo.Get actualInfo = paymentService.createPayment(command);
 
             // Assert
             assertThat(actualInfo).isEqualTo(expectedInfo);
+            verify(paymentEventPublisher, times(1)).publish(expectedEvent);
         }
     }
 
@@ -80,11 +94,15 @@ class PaymentServiceTest {
 
             when(paymentRepository.findByIdWithLock(1L)).thenReturn(Optional.of(payment));
 
+            PgPaymentFailed event = PgPaymentFailed.of(payment.getOrderId(), payment.getId());
+            doNothing().when(paymentEventPublisher).publish(event);
+
             // Act
             paymentService.markResult(command);
 
             // Assert
             verify(payment).markFailed();
+            verify(paymentEventPublisher, times(1)).publish(any(PgPaymentFailed.class));
         }
 
         @Test
