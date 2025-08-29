@@ -1,6 +1,5 @@
 package com.loopers.application.order;
 
-import com.loopers.domain.coupon.CouponService;
 import com.loopers.domain.order.OrderCommand;
 import com.loopers.domain.order.OrderInfo;
 import com.loopers.domain.order.OrderItemInfo;
@@ -25,41 +24,17 @@ import java.util.List;
 public class OrderFacade {
     private final OrderService orderService;
     private final ProductService productService;
-    private final CouponService couponService;
     private final PaymentService paymentService;
 
     @Transactional
     public OrderResult.Order order(OrderCriteria.Order criteria) {
         OrderInfo.Create orderInfo = createOrder(criteria);
-        Long discountingAmount = useCoupon(criteria, orderInfo);
-        Long discountedPrice = applyDiscount(orderInfo, discountingAmount);
-        deductProductStock(criteria);
-        return OrderResult.Order.from(orderInfo, discountedPrice);
+        return OrderResult.Order.from(orderInfo);
     }
 
     private OrderInfo.Create createOrder(OrderCriteria.Order criteria) {
         OrderCommand.Create orderCommand = criteria.toOrderCommand();
         return orderService.create(orderCommand);
-    }
-
-    private Long useCoupon(OrderCriteria.Order criteria, OrderInfo.Create orderInfo) {
-        if (criteria.couponIssuanceId() == null) {
-            return 0L;
-        }
-        Long couponIssuanceId = criteria.couponIssuanceId();
-        Long orderId = orderInfo.getId();
-        Long orderPrice = orderInfo.getTotalPrice();
-        return couponService.useCoupon(couponIssuanceId, orderId, orderPrice);
-    }
-
-    private Long applyDiscount(OrderInfo.Create orderInfo, Long discountingAmount) {
-        Long orderId = orderInfo.getId();
-        return orderService.applyDiscount(orderId, discountingAmount);
-    }
-
-    private void deductProductStock(OrderCriteria.Order criteria) {
-        ProductStockCommand.Deduct productStockCommand = criteria.toProductStockCommand();
-        productService.deductStock(productStockCommand);
     }
 
     public void processPendingOrders() {
@@ -68,9 +43,7 @@ public class OrderFacade {
             return;
         }
         pendingOrderInfos.orders().stream()
-                .forEach(orderInfo -> {
-                    processPendingOrder(orderInfo);
-                });
+                .forEach(this::processPendingOrder);
     }
 
     private void processPendingOrder(OrderInfo.Detail orderInfo) {

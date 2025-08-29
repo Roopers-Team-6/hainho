@@ -35,7 +35,7 @@ class OrderServiceTest {
         @DisplayName("주문 아이템이 비어있으면, BAD_REQUEST 예외를 발생시킨다.")
         void shouldThrowBadRequestWhenItemsAreEmpty() {
             // arrange
-            OrderCommand.Create command = new OrderCommand.Create(1L, List.of());
+            OrderCommand.Create command = new OrderCommand.Create(1L, List.of(), 2L);
 
             // act
             CoreException exception = assertThrows(CoreException.class, () -> orderService.create(command));

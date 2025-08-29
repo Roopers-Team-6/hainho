@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class CouponService {
     private final CouponIssuanceRepository couponIssuanceRepository;
     private final CouponRepository couponRepository;
+    private final CouponEventPublisher couponEventPublisher;
 
     @Transactional
     public Long useCoupon(Long couponIssuanceId, Long orderId, Long orderPrice) {
@@ -21,6 +22,8 @@ public class CouponService {
         Long discountAmount = coupon.calculateDiscountAmount(orderPrice);
 
         couponIssuance.use(orderId);
+
+
         return discountAmount;
     }
 

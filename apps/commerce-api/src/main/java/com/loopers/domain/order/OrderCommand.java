@@ -10,7 +10,8 @@ public final class OrderCommand {
 
     public record Create(
             Long userId,
-            List<OrderItem> items
+            List<OrderItem> items,
+            Long couponId
     ) {
         public record OrderItem(
                 Long productId,

@@ -16,6 +16,7 @@ import java.util.List;
 public class OrderService {
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
+    private final OrderEventPublisher orderEventPublisher;
 
     @Transactional
     public OrderInfo.Create create(OrderCommand.Create command) {
@@ -31,6 +32,9 @@ public class OrderService {
                 .map(item -> OrderItem.create(savedOrder.getId(), item.productId(), item.quantity(), item.price()))
                 .map(orderItemRepository::save)
                 .toList();
+
+        OrderCreated event = OrderCreated.from(savedOrder, items, command.couponId());
+        orderEventPublisher.publish(event);
 
         return OrderInfo.Create.from(savedOrder, items);
     }
