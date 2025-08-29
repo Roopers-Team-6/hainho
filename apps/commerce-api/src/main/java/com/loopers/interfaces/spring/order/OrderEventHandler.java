@@ -5,6 +5,7 @@ import com.loopers.domain.order.OrderService;
 import com.loopers.domain.payment.PaymentFailed;
 import com.loopers.domain.payment.PaymentSucceed;
 import com.loopers.domain.payment.SucceedPaymentNotFound;
+import com.loopers.domain.point.PointUsed;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
@@ -38,5 +39,10 @@ public class OrderEventHandler {
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handle(SucceedPaymentNotFound event) {
         orderService.markCancelled(event.orderId());
+    }
+
+    @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
+    public void handle(PointUsed event) {
+        orderService.markCompleted(event.orderId());
     }
 }

@@ -11,11 +11,16 @@ import org.springframework.transaction.annotation.Transactional;
 public class PointService {
 
     private final PointRepository pointRepository;
+    private final PointEventPublisher pointEventPublisher;
 
     @Transactional
-    public Long usePoint(Long userId, Long amount) {
+    public Long usePoint(Long userId, Long amount, Long orderId, Long paymentId) {
         Point point = getPointWithLock(userId);
         point.use(amount);
+
+        PointUsed event = PointUsed.of(paymentId, orderId);
+        pointEventPublisher.publish(event);
+
         return point.getBalance().getValue();
     }
 

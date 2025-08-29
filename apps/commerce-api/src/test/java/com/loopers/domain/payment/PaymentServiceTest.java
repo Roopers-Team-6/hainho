@@ -39,7 +39,7 @@ class PaymentServiceTest {
         @DisplayName("유효한 PaymentCommand를 받으면 CardPaymentCreated 이벤트를 발행하고, PaymentInfo를 반환한다.")
         void createPaymentWithValidCommand() {
             // Arrange
-            PaymentCommand.Create command = new PaymentCommand.Create(1L, "card", 1000L, "VISA", "1234-5678-9012-3456");
+            PaymentCommand.Create command = new PaymentCommand.Create(1L, 2L, "card", 1000L, "VISA", "1234-5678-9012-3456");
             Payment payment = Payment.create(command);
             PaymentInfo.Get expectedInfo = PaymentInfo.Get.from(payment);
             CardPaymentCreated expectedEvent = CardPaymentCreated.from(payment, command.cardType(), command.cardNumber());
@@ -54,7 +54,7 @@ class PaymentServiceTest {
             doNothing().when(paymentEventPublisher).publish(expectedEvent);
 
             // Act
-            PaymentInfo.Get actualInfo = paymentService.createPayment(command);
+            PaymentInfo.Get actualInfo = paymentService.createCardPayment(command);
 
             // Assert
             assertThat(actualInfo).isEqualTo(expectedInfo);

@@ -14,4 +14,6 @@ public interface PaymentEventPublisher {
     void publish(SucceedPaymentNotFound event);
 
     void publish(PaymentSucceedDuplicated event);
+
+    void publish(PointPaymentCreated event);
 }

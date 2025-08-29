@@ -18,11 +18,22 @@ public class PaymentService {
     private final PaymentEventPublisher paymentEventPublisher;
 
     @Transactional
-    public PaymentInfo.Get createPayment(PaymentCommand.Create command) {
+    public PaymentInfo.Get createCardPayment(PaymentCommand.Create command) {
         Payment payment = Payment.create(command);
         paymentRepository.save(payment);
 
         CardPaymentCreated event = CardPaymentCreated.from(payment, command.cardType(), command.cardNumber());
+        paymentEventPublisher.publish(event);
+
+        return PaymentInfo.Get.from(payment);
+    }
+
+    @Transactional
+    public PaymentInfo.Get createPointPayment(PaymentCommand.Create command) {
+        Payment payment = Payment.create(command);
+        paymentRepository.save(payment);
+
+        PointPaymentCreated event = PointPaymentCreated.from(payment, command.userId());
         paymentEventPublisher.publish(event);
 
         return PaymentInfo.Get.from(payment);
@@ -59,6 +70,12 @@ public class PaymentService {
         Payment payment = getPaymentWithLock(command.transactionKey());
         markFinalStatus(payment, command);
         return PaymentInfo.Get.from(payment);
+    }
+
+    @Transactional
+    public void completePointPayment(Long orderId, Long paymentId) {
+        Payment payment = getPaymentWithLock(paymentId);
+        payment.completed();
     }
 
     private Payment getPaymentWithLock(String transactionKey) {
@@ -132,5 +149,11 @@ public class PaymentService {
                 paymentInfo.status()
         );
         paymentEventPublisher.publish(event);
+    }
+
+    @Transactional
+    public void failPointPayment(Long orderId, Long paymentId) {
+        Payment payment = getPaymentWithLock(paymentId);
+        payment.markFailed();
     }
 }

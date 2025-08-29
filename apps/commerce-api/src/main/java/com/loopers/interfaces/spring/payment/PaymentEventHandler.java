@@ -2,6 +2,7 @@ package com.loopers.interfaces.spring.payment;
 
 import com.loopers.domain.order.OldPendingOrderFound;
 import com.loopers.domain.payment.*;
+import com.loopers.domain.point.PointUsed;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.event.EventListener;
@@ -58,5 +59,17 @@ public class PaymentEventHandler {
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handle(PaymentSucceedDuplicated event) {
         // 중복 결제 취소
+    }
+
+    @Async
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    public void handleAfterCommit(PointUsed event) {
+        paymentService.completePointPayment(event.orderId(), event.paymentId());
+    }
+
+    @Async
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_ROLLBACK)
+    public void handleAfterRollback(PointUsed event) {
+        paymentService.failPointPayment(event.orderId(), event.paymentId());
     }
 }
