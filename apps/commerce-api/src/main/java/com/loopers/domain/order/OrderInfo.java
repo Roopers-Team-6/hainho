@@ -28,4 +28,33 @@ public final class OrderInfo {
             return new OrderInfo.Create(order.getId(), order.getTotalPrice().getValue(), itemInfos);
         }
     }
+
+    public record Detail(
+            Long id,
+            Long userId,
+            Long totalPrice,
+            Long discountedPrice,
+            String status
+    ) {
+        public static Detail from(Order order) {
+            return new Detail(
+                    order.getId(),
+                    order.getUserId(),
+                    order.getTotalPrice().getValue(),
+                    order.getDiscountedPrice() != null ? order.getDiscountedPrice().getValue() : null,
+                    order.getStatus().name()
+            );
+        }
+    }
+
+    public record PendingOrders(
+            List<OrderInfo.Detail> orders
+    ) {
+        public static PendingOrders from(List<Order> orders) {
+            List<OrderInfo.Detail> orderDetails = orders.stream()
+                    .map(OrderInfo.Detail::from)
+                    .toList();
+            return new PendingOrders(orderDetails);
+        }
+    }
 }

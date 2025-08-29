@@ -17,4 +17,14 @@ public final class ProductStockCommand {
         ) {
         }
     }
+
+    public record Refund(
+            List<Product> products
+    ) {
+        public record Product(
+                Long productId,
+                Long quantityToRefund
+        ) {
+        }
+    }
 }
