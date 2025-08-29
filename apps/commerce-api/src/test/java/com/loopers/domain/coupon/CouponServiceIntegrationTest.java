@@ -2,18 +2,18 @@ package com.loopers.domain.coupon;
 
 
 import com.loopers.utils.DatabaseCleanUp;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.isA;
+import static org.mockito.Mockito.doNothing;
 
 @SpringBootTest
 class CouponServiceIntegrationTest {
@@ -26,8 +26,16 @@ class CouponServiceIntegrationTest {
     @Autowired
     private CouponIssuanceRepository couponIssuanceRepository;
 
+    @MockitoBean
+    private CouponEventPublisher couponEventPublisher;
+
     @Autowired
     private DatabaseCleanUp databaseCleanUp;
+
+    @BeforeEach
+    void setUp() {
+        doNothing().when(couponEventPublisher).publish(isA(CouponUsed.class));
+    }
 
     @AfterEach
     void tearDown() {

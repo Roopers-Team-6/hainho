@@ -27,6 +27,8 @@ public class CouponService {
 
         couponIssuance.use(orderId);
 
+        CouponUsed couponUsed = new CouponUsed(couponId, orderId, orderPrice);
+        couponEventPublisher.publish(couponUsed);
 
         return discountAmount;
     }
