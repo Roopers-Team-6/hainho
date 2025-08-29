@@ -15,6 +15,7 @@ public class ProductService {
     private final ProductRedisRepository productRedisRepository;
     private final ProductStockRepository productStockRepository;
     private final ProductRepository productRepository;
+    private final ProductEventPublisher productEventPublisher;
 
     @Transactional
     public void deductStock(ProductStockCommand.Deduct command) {
@@ -35,9 +36,13 @@ public class ProductService {
     }
 
     @Transactional(readOnly = true)
-    public ProductInfo.Get getProductInfo(Long productId) {
+    public ProductInfo.Get getProductInfo(Long productId, Long userId) {
         Product product = productRedisRepository.find(productId)
                 .orElse(getAndCacheProduct(productId));
+
+        ProductFound event = ProductFound.of(productId, userId);
+        productEventPublisher.publish(event);
+
         return ProductInfo.Get.from(product);
     }
 

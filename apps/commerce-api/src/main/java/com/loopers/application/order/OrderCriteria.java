@@ -23,7 +23,7 @@ public final class OrderCriteria {
                             product.price()
                     ))
                     .toList();
-            return new OrderCommand.Create(userId, orderItems);
+            return new OrderCommand.Create(userId, orderItems, couponIssuanceId);
         }
 
         public ProductStockCommand.Deduct toProductStockCommand() {

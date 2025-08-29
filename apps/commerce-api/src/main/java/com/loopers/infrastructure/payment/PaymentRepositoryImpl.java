@@ -14,6 +14,11 @@ public class PaymentRepositoryImpl implements PaymentRepository {
     private final PaymentJpaRepository paymentJpaRepository;
 
     @Override
+    public Payment save(Payment payment) {
+        return paymentJpaRepository.save(payment);
+    }
+
+    @Override
     public Optional<Payment> findByIdWithLock(Long id) {
         return paymentJpaRepository.findByIdWithLock(id);
     }

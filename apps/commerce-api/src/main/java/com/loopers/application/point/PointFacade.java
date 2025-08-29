@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public class PointFacade {
-
     private final PointService pointService;
 
     public Long getPoint(Long userId) {

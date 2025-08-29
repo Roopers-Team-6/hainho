@@ -6,6 +6,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -21,5 +22,10 @@ public class CouponIssuanceRepositoryImpl implements CouponIssuanceRepository {
     @Override
     public Optional<CouponIssuance> findById(Long id) {
         return couponIssuanceJpaRepository.findById(id);
+    }
+
+    @Override
+    public List<CouponIssuance> findAllByUsedOrderId(Long usedOrderId) {
+        return couponIssuanceJpaRepository.findAllByUsedOrderId(usedOrderId);
     }
 }

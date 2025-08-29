@@ -48,6 +48,13 @@ public class Payment extends BaseEntity {
         this.status = PaymentStatus.COMPLETED;
     }
 
+    public void completed() {
+        if (!status.isCompletable()) {
+            throw new IllegalStateException("결제 상태가 완료 가능한 상태가 아닙니다. 현재 상태: " + status);
+        }
+        this.status = PaymentStatus.COMPLETED;
+    }
+
     public void markFailed() {
         if (!status.isFailable()) {
             throw new IllegalStateException("결제 상태가 실패 가능한 상태가 아닙니다. 현재 상태: " + status);

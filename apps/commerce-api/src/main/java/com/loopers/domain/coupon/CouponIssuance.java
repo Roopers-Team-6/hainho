@@ -52,4 +52,12 @@ public class CouponIssuance extends BaseEntity {
     public boolean isUsed() {
         return this.usedAt != null;
     }
+
+    public void revert() {
+        if (!isUsed()) {
+            throw new IllegalStateException("사용되지 않은 쿠폰은 취소할 수 없습니다.");
+        }
+        this.usedAt = null;
+        this.usedOrderId = null;
+    }
 }
