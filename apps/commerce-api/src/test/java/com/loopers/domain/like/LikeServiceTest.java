@@ -25,6 +25,9 @@ class LikeServiceTest {
     @Mock
     private LikeProductRepository likeProductRepository;
 
+    @Mock
+    private LikeEventPublisher likeEventPublisher;
+
     @Nested
     @DisplayName("likeProduct 메서드 호출할 때,")
     class WhenCallingLikeProduct {
@@ -45,12 +48,15 @@ class LikeServiceTest {
         }
 
         @Test
-        @DisplayName("해당 상품 좋아요가 존재하지 않으면, 상품 좋아요를 추가한다.")
+        @DisplayName("해당 상품 좋아요가 존재하지 않으면, 상품 좋아요를 추가하고, LikeProductCreated 이벤트를 발행한다.")
         void shouldCreateLikeProductWhenNotExists() {
             // arrange
             Long userId = 1L;
             Long productId = 2L;
             when(likeProductRepository.exists(userId, productId)).thenReturn(false);
+
+            LikeProductCreated expectedEvent = LikeProductCreated.of(userId, productId);
+            doNothing().when(likeEventPublisher).publish(expectedEvent);
 
             // act
             likeService.likeProduct(userId, productId);
@@ -60,6 +66,7 @@ class LikeServiceTest {
                     argument.getUserId().equals(userId) &&
                             argument.getProductId().equals(productId)
             ));
+            verify(likeEventPublisher, times(1)).publish(expectedEvent);
         }
     }
 
@@ -77,11 +84,15 @@ class LikeServiceTest {
             LikeProduct likeProduct = mock(LikeProduct.class);
             when(likeProductRepository.find(userId, productId)).thenReturn(Optional.of(likeProduct));
 
+            LikeProductDeleted expectedEvent = LikeProductDeleted.of(userId, productId);
+            doNothing().when(likeEventPublisher).publish(expectedEvent);
+
             // act
             likeService.likeProductCancel(userId, productId);
 
             // assert
             verify(likeProductRepository, times(1)).delete(likeProduct);
+            verify(likeEventPublisher, times(1)).publish(expectedEvent);
         }
 
         @Test

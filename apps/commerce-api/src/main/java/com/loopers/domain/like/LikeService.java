@@ -16,26 +16,31 @@ import java.util.Optional;
 public class LikeService {
     private final LikeProductRepository likeProductRepository;
     private final LikeProductCountRepository likeProductCountRepository;
+    private final LikeEventPublisher likeEventPublisher;
 
     @Transactional
-    public Boolean likeProduct(Long userId, Long productId) {
+    public void likeProduct(Long userId, Long productId) {
         if (likeProductRepository.exists(userId, productId)) {
-            return false;
+            return;
         }
         LikeProduct likeProduct = LikeProduct.create(userId, productId);
         likeProductRepository.save(likeProduct);
-        return true;
+
+        LikeProductCreated event = LikeProductCreated.of(userId, productId);
+        likeEventPublisher.publish(event);
     }
 
     @Transactional
-    public Boolean likeProductCancel(Long userId, Long productId) {
+    public void likeProductCancel(Long userId, Long productId) {
         Optional<LikeProduct> optionalLikeProduct = likeProductRepository.find(userId, productId);
         if (optionalLikeProduct.isEmpty()) {
-            return false;
+            return;
         }
         LikeProduct likeProduct = optionalLikeProduct.get();
         likeProductRepository.delete(likeProduct);
-        return true;
+
+        LikeProductDeleted event = LikeProductDeleted.of(userId, productId);
+        likeEventPublisher.publish(event);
     }
 
     @Transactional
