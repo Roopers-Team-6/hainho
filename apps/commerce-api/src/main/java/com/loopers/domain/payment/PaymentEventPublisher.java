@@ -10,4 +10,8 @@ public interface PaymentEventPublisher {
     void publish(PgPaymentCompleted events);
 
     void publish(PaymentSucceed events);
+
+    void publish(SucceedPaymentNotFound event);
+
+    void publish(PaymentSucceedDuplicated event);
 }

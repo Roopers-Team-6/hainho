@@ -61,6 +61,8 @@ public class OrderService {
     public OrderInfo.Detail verifyPayableAndMarkProcessing(Long orderId, Long userId) {
         Order order = getOrder(orderId, userId);
         order.markProcessing();
+        OldPendingOrderFound event = OldPendingOrderFound.from(order);
+        orderEventPublisher.publish(event);
         return OrderInfo.Detail.from(order);
     }
 
@@ -94,6 +96,9 @@ public class OrderService {
     public void markCancelled(Long orderId) {
         Order order = getOrder(orderId);
         order.markCancelled();
+        List<OrderItem> items = orderItemRepository.findAllByOrderId(orderId);
+        OrderCancelled event = OrderCancelled.from(order, items);
+        orderEventPublisher.publish(event);
     }
 
     @Transactional

@@ -1,5 +1,6 @@
 package com.loopers.interfaces.spring.product;
 
+import com.loopers.domain.order.OrderCancelled;
 import com.loopers.domain.order.OrderCreated;
 import com.loopers.domain.product.ProductService;
 import com.loopers.domain.product.ProductStockCommand;
@@ -20,5 +21,13 @@ public class ProductEventHandler {
                 event.items().stream().map(item -> new ProductStockCommand.Deduct.Product(item.productId(), item.quantity())).toList()
         );
         productService.deductStock(command);
+    }
+
+    @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
+    public void handle(OrderCancelled event) {
+        ProductStockCommand.Refund command = new ProductStockCommand.Refund(
+                event.items().stream().map(item -> new ProductStockCommand.Refund.Product(item.productId(), item.quantity())).toList()
+        );
+        productService.refundStock(command);
     }
 }

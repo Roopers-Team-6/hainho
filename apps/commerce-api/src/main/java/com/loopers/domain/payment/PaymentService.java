@@ -110,22 +110,27 @@ public class PaymentService {
         return paymentGateway.findCardOrderResult(query);
     }
 
-    public PaymentInfo.Card.Result verifyOrderPaymentResult(Long orderId) {
+    public void verifyOrderPaymentResult(Long orderId) {
         PaymentQuery.Card.Order query = new PaymentQuery.Card.Order(orderId);
         PaymentInfo.Card.Order cardOrder = paymentGateway.findCardOrderResult(query);
         List<PaymentInfo.Card.Get> successPaymentInfo = cardOrder.paymentResults().stream()
                 .filter(paymentResult -> paymentResult.status().equals("SUCCESS")).toList();
         if (successPaymentInfo.isEmpty()) {
-            return new PaymentInfo.Card.Result(
-                    null,
-                    "FAILED",
-                    "결제 성공 내역이 없습니다. 주문 ID: " + orderId
-            );
+            SucceedPaymentNotFound event = SucceedPaymentNotFound.of(orderId);
+            paymentEventPublisher.publish(event);
+            return;
         }
         if (successPaymentInfo.size() > 1) {
-            // 환불 담당자에게 알림 전송
+            PaymentSucceedDuplicated event = PaymentSucceedDuplicated.of(orderId);
+            paymentEventPublisher.publish(event);
+            return;
         }
         PaymentInfo.Card.Get paymentInfo = successPaymentInfo.get(0);
-        return paymentInfo.toResult();
+        PgPaymentCompleted event = PgPaymentCompleted.of(
+                paymentInfo.orderId(),
+                paymentInfo.transactionKey(),
+                paymentInfo.status()
+        );
+        paymentEventPublisher.publish(event);
     }
 }

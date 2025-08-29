@@ -35,4 +35,14 @@ public class PaymentApplicationEventPublisher implements PaymentEventPublisher {
     public void publish(PaymentSucceed event) {
         applicationEventPublisher.publishEvent(event);
     }
+
+    @Override
+    public void publish(SucceedPaymentNotFound event) {
+        applicationEventPublisher.publishEvent(event);
+    }
+
+    @Override
+    public void publish(PaymentSucceedDuplicated event) {
+        applicationEventPublisher.publishEvent(event);
+    }
 }

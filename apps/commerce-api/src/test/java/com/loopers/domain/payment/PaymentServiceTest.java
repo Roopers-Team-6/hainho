@@ -282,7 +282,7 @@ class PaymentServiceTest {
         private final String failedStatus = "FAILED";
 
         @Test
-        @DisplayName("결제 성공한 PaymentResult가 없으면, FAILED 상태의 PaymentInfo.Card.Result 를 반환한다.")
+        @DisplayName("결제 성공한 PaymentResult가 없으면, SucceedPaymentNotFound 이벤트를 발행한다.")
         void verifyOrderPaymentResultWithNoSuccessfulPayment() {
             // Arrange
 
@@ -293,15 +293,18 @@ class PaymentServiceTest {
 
             when(paymentGateway.findCardOrderResult(command)).thenReturn(paymentOrder);
 
+            SucceedPaymentNotFound expectedEvent = SucceedPaymentNotFound.of(orderId);
+            doNothing().when(paymentEventPublisher).publish(expectedEvent);
+
             // Act
-            PaymentInfo.Card.Result result = paymentService.verifyOrderPaymentResult(orderId);
+            paymentService.verifyOrderPaymentResult(orderId);
 
             // Assert
-            assertThat(result.status()).isEqualTo("FAILED");
+            verify(paymentEventPublisher, times(1)).publish(expectedEvent);
         }
 
         @Test
-        @DisplayName("결제 성공한 PaymentResult가 있으면, 해당 PaymentInfo를 반환한다.")
+        @DisplayName("결제 성공한 PaymentResult가 있으면, PgPaymentCompleted 이벤트를 발행한다.")
         void verifyOrderPaymentResultWithSuccessfulPayment() {
             // Arrange
             PaymentQuery.Card.Order command = new PaymentQuery.Card.Order(orderId);
@@ -311,13 +314,14 @@ class PaymentServiceTest {
 
             when(paymentGateway.findCardOrderResult(command)).thenReturn(paymentOrder);
 
-            PaymentInfo.Card.Result expectedPaymentInfo = paymentInfo.toResult();
+            PgPaymentCompleted event = PgPaymentCompleted.of(stringOrderId, transactionKey, status);
+            doNothing().when(paymentEventPublisher).publish(event);
 
             // Act
-            PaymentInfo.Card.Result actualPaymentInfo = paymentService.verifyOrderPaymentResult(orderId);
+            paymentService.verifyOrderPaymentResult(orderId);
 
             // Assert
-            assertThat(actualPaymentInfo).isEqualTo(expectedPaymentInfo);
+            verify(paymentEventPublisher, times(1)).publish(event);
         }
     }
 }
