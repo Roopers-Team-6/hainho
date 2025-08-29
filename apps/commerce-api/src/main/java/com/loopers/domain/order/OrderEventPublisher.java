@@ -6,4 +6,6 @@ public interface OrderEventPublisher {
     void publish(OldPendingOrderFound event);
 
     void publish(OrderCancelled event);
+
+    void publish(OrderCompleted event);
 }

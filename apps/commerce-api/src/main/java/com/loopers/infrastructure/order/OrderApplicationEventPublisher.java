@@ -1,9 +1,6 @@
 package com.loopers.infrastructure.order;
 
-import com.loopers.domain.order.OldPendingOrderFound;
-import com.loopers.domain.order.OrderCancelled;
-import com.loopers.domain.order.OrderCreated;
-import com.loopers.domain.order.OrderEventPublisher;
+import com.loopers.domain.order.*;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
@@ -29,4 +26,8 @@ public class OrderApplicationEventPublisher implements OrderEventPublisher {
         applicationEventPublisher.publishEvent(event);
     }
 
+    @Override
+    public void publish(OrderCompleted event) {
+        applicationEventPublisher.publishEvent(event);
+    }
 }

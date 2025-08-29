@@ -1,5 +1,6 @@
 package com.loopers.domain.order;
 
+import com.loopers.application.order.OrderGateway;
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
 import jakarta.persistence.EntityNotFoundException;
@@ -17,6 +18,7 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
     private final OrderEventPublisher orderEventPublisher;
+    private final OrderGateway orderGateway;
 
     @Transactional
     public OrderInfo.Create create(OrderCommand.Create command) {
@@ -75,6 +77,11 @@ public class OrderService {
     public OrderInfo.Detail markCompleted(Long orderId) {
         Order order = getOrder(orderId);
         order.markCompleted();
+        List<OrderItem> items = orderItemRepository.findAllByOrderId(orderId);
+
+        OrderCompleted event = OrderCompleted.from(order, items);
+        orderEventPublisher.publish(event);
+
         return OrderInfo.Detail.from(order);
     }
 
@@ -106,5 +113,9 @@ public class OrderService {
         Order order = getOrder(orderId);
         order.markPending();
         return OrderInfo.Detail.from(order);
+    }
+
+    public void sendCompletedOrderInfo(List<OrderCompleted.OrderItem> items) {
+        orderGateway.sendOrderCompletedInfo(items);
     }
 }

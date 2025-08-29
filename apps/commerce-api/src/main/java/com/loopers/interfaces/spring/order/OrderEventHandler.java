@@ -1,6 +1,7 @@
 package com.loopers.interfaces.spring.order;
 
 import com.loopers.domain.coupon.CouponUsed;
+import com.loopers.domain.order.OrderCompleted;
 import com.loopers.domain.order.OrderService;
 import com.loopers.domain.payment.PaymentFailed;
 import com.loopers.domain.payment.PaymentSucceed;
@@ -44,5 +45,11 @@ public class OrderEventHandler {
     @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
     public void handle(PointUsed event) {
         orderService.markCompleted(event.orderId());
+    }
+
+    @Async
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    public void handle(OrderCompleted event) {
+        orderService.sendCompletedOrderInfo(event.items());
     }
 }
