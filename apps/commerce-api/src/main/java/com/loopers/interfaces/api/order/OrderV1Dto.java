@@ -43,14 +43,13 @@ public class OrderV1Dto {
         public record Response(
                 Long orderId,
                 Long totalPrice,
-                Long discountedPrice,
                 List<OrderItem> items
         ) {
             public static Response from(OrderResult.Order order) {
                 List<OrderItem> items = order.products().stream()
                         .map(item -> new OrderItem(item.productId(), item.quantity(), item.price()))
                         .toList();
-                return new Response(order.id(), order.totalPrice(), order.discountedPrice(), items);
+                return new Response(order.id(), order.totalPrice(), items);
             }
 
             public record OrderItem(

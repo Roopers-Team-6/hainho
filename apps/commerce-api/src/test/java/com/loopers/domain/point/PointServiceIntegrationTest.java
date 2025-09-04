@@ -1,18 +1,18 @@
 package com.loopers.domain.point;
 
 import com.loopers.utils.DatabaseCleanUp;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.isA;
+import static org.mockito.Mockito.doNothing;
 
 @SpringBootTest
 class PointServiceIntegrationTest {
@@ -25,6 +25,14 @@ class PointServiceIntegrationTest {
 
     @Autowired
     private DatabaseCleanUp databaseCleanUp;
+
+    @MockitoBean
+    private PointEventPublisher pointEventPublisher;
+
+    @BeforeEach
+    void setUp() {
+        doNothing().when(pointEventPublisher).publish(isA(PointUsed.class));
+    }
 
     @AfterEach
     void tearDown() {
@@ -52,12 +60,15 @@ class PointServiceIntegrationTest {
             Long amountToUse = 1000L;
             Long expectedPointAfterUsage = initialPoint - (amountToUse * threadCount);
 
+            Long orderId = 3L;
+            Long paymentId = 4L;
+
             // Act
             for (int i = 0; i < threadCount; i++) {
                 executorService.submit(() -> {
                     try {
                         // Act
-                        pointService.usePoint(userId, amountToUse);
+                        pointService.usePoint(userId, amountToUse, orderId, paymentId);
                     } catch (Exception e) {
                         System.out.println("실패: " + e.getMessage());
                     } finally {
@@ -96,12 +107,15 @@ class PointServiceIntegrationTest {
             Long amountToUse = 1000L;
             Long expectedPointAfterUsage = 0L;
 
+            Long orderId = 3L;
+            Long paymentId = 4L;
+
             // Act
             for (int i = 0; i < threadCount; i++) {
                 executorService.submit(() -> {
                     try {
                         // Act
-                        pointService.usePoint(userId, amountToUse);
+                        pointService.usePoint(userId, amountToUse, orderId, paymentId);
                     } catch (Exception e) {
                         System.out.println("실패: " + e.getMessage());
                     } finally {

@@ -11,16 +11,10 @@ public class LikeFacade {
     private final LikeService likeService;
 
     public void likeProduct(Long userId, Long productId) {
-        Boolean isSuccess = likeService.likeProduct(userId, productId);
-        if (isSuccess) {
-            likeService.increaseLikeProductCount(productId);
-        }
+        likeService.likeProduct(userId, productId);
     }
 
     public void cancelLikeProduct(Long userId, Long productId) {
-        Boolean isSuccess = likeService.likeProductCancel(userId, productId);
-        if (isSuccess) {
-            likeService.decreaseLikeProductCount(productId);
-        }
+        likeService.likeProductCancel(userId, productId);
     }
 }

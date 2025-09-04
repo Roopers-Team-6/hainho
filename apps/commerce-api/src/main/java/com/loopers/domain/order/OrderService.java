@@ -1,5 +1,6 @@
 package com.loopers.domain.order;
 
+import com.loopers.application.order.OrderGateway;
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
 import jakarta.persistence.EntityNotFoundException;
@@ -16,6 +17,8 @@ import java.util.List;
 public class OrderService {
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
+    private final OrderEventPublisher orderEventPublisher;
+    private final OrderGateway orderGateway;
 
     @Transactional
     public OrderInfo.Create create(OrderCommand.Create command) {
@@ -31,6 +34,9 @@ public class OrderService {
                 .map(item -> OrderItem.create(savedOrder.getId(), item.productId(), item.quantity(), item.price()))
                 .map(orderItemRepository::save)
                 .toList();
+
+        OrderCreated event = OrderCreated.from(savedOrder, items, command.couponId());
+        orderEventPublisher.publish(event);
 
         return OrderInfo.Create.from(savedOrder, items);
     }
@@ -57,6 +63,8 @@ public class OrderService {
     public OrderInfo.Detail verifyPayableAndMarkProcessing(Long orderId, Long userId) {
         Order order = getOrder(orderId, userId);
         order.markProcessing();
+        OldPendingOrderFound event = OldPendingOrderFound.from(order);
+        orderEventPublisher.publish(event);
         return OrderInfo.Detail.from(order);
     }
 
@@ -69,6 +77,11 @@ public class OrderService {
     public OrderInfo.Detail markCompleted(Long orderId) {
         Order order = getOrder(orderId);
         order.markCompleted();
+        List<OrderItem> items = orderItemRepository.findAllByOrderId(orderId);
+
+        OrderCompleted event = OrderCompleted.from(order, items);
+        orderEventPublisher.publish(event);
+
         return OrderInfo.Detail.from(order);
     }
 
@@ -90,6 +103,9 @@ public class OrderService {
     public void markCancelled(Long orderId) {
         Order order = getOrder(orderId);
         order.markCancelled();
+        List<OrderItem> items = orderItemRepository.findAllByOrderId(orderId);
+        OrderCancelled event = OrderCancelled.from(order, items);
+        orderEventPublisher.publish(event);
     }
 
     @Transactional
@@ -97,5 +113,9 @@ public class OrderService {
         Order order = getOrder(orderId);
         order.markPending();
         return OrderInfo.Detail.from(order);
+    }
+
+    public void sendCompletedOrderInfo(List<OrderCompleted.OrderItem> items) {
+        orderGateway.sendOrderCompletedInfo(items);
     }
 }

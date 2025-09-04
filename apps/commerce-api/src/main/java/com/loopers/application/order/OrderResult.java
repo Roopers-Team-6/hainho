@@ -13,15 +13,14 @@ public final class OrderResult {
     public record Order(
             Long id,
             Long totalPrice,
-            Long discountedPrice,
             List<OrderProduct> products
     ) {
-        public static Order from(OrderInfo.Create orderInfo, Long discountedPrice) {
+        public static Order from(OrderInfo.Create orderInfo) {
             List<OrderProduct> products = orderInfo.getItems()
                     .stream()
                     .map(OrderProduct::from)
                     .toList();
-            return new Order(orderInfo.getId(), orderInfo.getTotalPrice(), discountedPrice, products);
+            return new Order(orderInfo.getId(), orderInfo.getTotalPrice(), products);
         }
 
         public record OrderProduct(Long productId, Long quantity, Long price) {

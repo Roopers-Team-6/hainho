@@ -1,4 +1,4 @@
-package com.loopers.interfaces.api.order;
+package com.loopers.interfaces.spring.order;
 
 import com.loopers.application.order.OrderFacade;
 import lombok.AccessLevel;
