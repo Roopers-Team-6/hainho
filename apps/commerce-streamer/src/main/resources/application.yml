@@ -9,7 +9,7 @@ server:
     accept-count: 100 # 대기 큐 크기 (default : 100)
     keep-alive-timeout: 60s # 60s
   max-http-request-header-size: 8KB
-  port: 8080
+  port: 8081
 
 spring:
   main:
@@ -26,15 +26,12 @@ spring:
       - logging.yml
       - monitoring.yml
 
-springdoc:
-  use-fqn: true
-  swagger-ui:
-    path: /swagger-ui.html
-
 kafka:
-  topics:
+  topic:
     order: order-events
     catalog: catalog-events
+  group:
+    audit-log: audit-log-group
 
 ---
 spring:
