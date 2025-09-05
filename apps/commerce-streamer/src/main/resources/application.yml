@@ -26,9 +26,12 @@ spring:
       - logging.yml
       - monitoring.yml
 
-demo-kafka:
-  test:
-    topic-name: demo.internal.topic-v1
+kafka:
+  topic:
+    order: order-events
+    catalog: catalog-events
+  group:
+    audit-log: audit-log-group
 
 ---
 spring:
